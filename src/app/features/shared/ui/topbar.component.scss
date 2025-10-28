@@ -1,0 +1,158 @@
+/* ===== TOPBAR ===== */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #f3f4f3; /* même gris que footer */
+  border-bottom: 1px solid #e0e2e0;
+}
+
+.bar {
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* logo | menu | user */
+  align-items: center;
+  height: 72px;
+  padding: 0 24px;
+  max-width: 100%;
+}
+
+/* === GRAND ÉCRAN : logo à gauche, menu au centre, utilisateur à droite === */
+@media (min-width: 1200px) {
+  .bar {
+    grid-template-columns: auto 1fr auto;
+    justify-content: space-between;
+  }
+  .brand {
+    justify-self: start;
+  }
+  .menu {
+    justify-self: center;
+  }
+  .right {
+    justify-self: end;
+  }
+}
+
+/* Marque (logo + texte) */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+.brand .logo {
+  height: 60px;
+  width: auto;
+  display: block;
+}
+.brand .wordmark {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 20px;
+  color: #1b1b1b;
+}
+
+/* Menu */
+.menu {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.menu a {
+  text-decoration: none;
+  color: #222;
+  padding: 8px 12px;
+  border-radius: 10px;
+  transition: background-color 0.15s ease;
+}
+.menu a:hover {
+  background: #f6f6f6;
+}
+.menu a.active {
+  background: #f1f7f1;
+  color: #2b7a2b;
+  font-weight: 600;
+}
+
+/* Zone droite (utilisateur + bouton) */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.logout {
+  color: #000;
+  border: 1px solid #dcdcdc;
+  background: #fafafa;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+}
+.logout:hover {
+  transform: translateY(-1px);
+  background: #fff;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* === Burger (mobile) === */
+.burger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  width: 42px;
+  height: 42px;
+}
+.burger span {
+  display: block;
+  width: 26px;
+  height: 3px;
+  background: #111;
+  border-radius: 2px;
+  margin: 3px 0; /* bien espacés verticalement */
+}
+
+/* === Mobile responsive === */
+@media (max-width: 900px) {
+  .bar {
+    grid-template-columns: auto 1fr auto;
+  }
+
+  .burger {
+    display: flex;
+  }
+
+  .menu {
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    z-index: 950;
+
+    transform: translateY(-120%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .menu.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    z-index: 900;
+  }
+}

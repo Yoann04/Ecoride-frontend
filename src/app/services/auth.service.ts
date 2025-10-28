@@ -2,61 +2,43 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { UserService } from './user.service';
 
 export const TOKEN_KEY = 'jwt_token';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  /** Pointe vers le backend via le proxy Angular */
-  private readonly apiUrl = '/api';
-  /** Clé de stockage du JWT */
-  private readonly tokenKey = TOKEN_KEY;
-
-  /** État de connexion (true si un token est présent) */
+  private apiUrl = 'http://127.0.0.1:8000/api'; // ✅ ajout ici
+  private tokenKey = 'jwt_token';
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private userService: UserService) {}
 
-  /** 🔐 Connexion: POST /api/login */
-  login(email: string, password: string): Observable<{ token: string }> {
+  login(email: string, password: string): Observable<any> {
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-
-    return this.http
-      .post<{ token: string }>(`${this.apiUrl}/login`, { email, password }, { headers })
-      .pipe(
-        tap((res) => {
-          if (res?.token) {
-            localStorage.setItem(this.tokenKey, res.token);
-            this.isLoggedInSubject.next(true);
-          }
-        })
-      );
+    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }, { headers }).pipe(
+      tap((response) => {
+        if (response && response.token) {
+          localStorage.setItem(this.tokenKey, response.token);
+          this.isLoggedInSubject.next(true);
+        }
+      })
+    );
   }
 
-  /** 🚪 Déconnexion */
   logout(): void {
-    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(TOKEN_KEY);
+    this.userService.clear();
     this.isLoggedInSubject.next(false);
   }
 
-  /** 👀 Helper: un token est-il stocké ? */
-  hasToken(): boolean {
-    return !!localStorage.getItem(this.tokenKey);
-  }
-
-  /** 📡 Observable de l’état de connexion */
-  isLoggedIn(): Observable<boolean> {
-    return this.isLoggedInSubject.asObservable();
-  }
-
-  /** 📦 Récupérer le token courant */
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem(TOKEN_KEY);
   }
-
-  /** 🗑️ Effacer le token (utilitaire) */
-  clearToken(): void {
-    localStorage.removeItem(this.tokenKey);
-    this.isLoggedInSubject.next(false);
+  hasToken(): boolean {
+    return !!localStorage.getItem(TOKEN_KEY);
+  }
+  isLoggedIn() {
+    return this.isLoggedInSubject.asObservable();
   }
 }

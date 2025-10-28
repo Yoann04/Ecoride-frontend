@@ -1,12 +1,21 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import TopbarComponent from './features/shared/ui/topbar.component'; // ✅ AJOUT
+import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
-  templateUrl: './app.html',
-  styleUrl: './app.scss'
+  standalone: true,
+  imports: [RouterOutlet, TopbarComponent], // ✅ AJOUT
+  template: `
+    <app-topbar></app-topbar>
+    <!-- ✅ header -->
+    <router-outlet></router-outlet>
+  `,
 })
-export class App {
-  protected readonly title = signal('ecoride-frontend');
+export class AppComponent implements OnInit {
+  constructor(private userService: UserService) {}
+  ngOnInit() {
+    this.userService.bootstrapFromStorage();
+  }
 }

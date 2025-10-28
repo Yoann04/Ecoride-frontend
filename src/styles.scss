@@ -1,1 +1,91 @@
-/* You can add global styles to this file, and also import other style files */
+/* ========= EcoRide – Thème global ========= */
+
+/* Palette & variables */
+:root {
+  --primary: #64a859; /* vert EcoRide */
+  --primary-strong: #4e8b47;
+  --panel: #f7f9f7; /* gris très clair (header/footer/sections) */
+  --bg: #ffffff; /* blanc pur pour le body */
+  --text: #222222;
+  --muted: #6b7280;
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 12px 32px rgba(0, 0, 0, 0.08);
+  --radius: 16px;
+}
+
+/* Polices */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&family=Lato:wght@400;500&display=swap');
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg); /* blanc pur */
+  color: var(--text);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Lato', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Titres globaux */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: 'Poppins', var(--font, system-ui);
+  color: var(--primary);
+  margin: 0 0 10px;
+}
+h1 {
+  font-size: clamp(28px, 3.6vw, 44px);
+  font-weight: 700;
+  line-height: 1.2;
+}
+h2 {
+  font-size: clamp(22px, 2.6vw, 32px);
+  font-weight: 700;
+}
+
+/* Liens génériques */
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Conteneur central */
+.container {
+  width: min(1200px, 94vw);
+  margin: 0 auto;
+}
+
+/* Utilitaires */
+.mt-32 {
+  margin-top: 32px;
+}
+.mt-48 {
+  margin-top: 48px;
+}
+.mt-64 {
+  margin-top: 64px;
+}
+.text-muted {
+  color: var(--muted);
+}
+
+/* Pour éviter que des styles globaux touchent le logo du header */
+header.topbar img.logo {
+  width: auto !important;
+  max-width: none !important;
+}

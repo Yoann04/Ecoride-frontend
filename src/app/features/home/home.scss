@@ -1,28 +1,253 @@
-.home-container {
+/* ===== HERO ===== */
+.hero {
+  padding: 72px 0 48px;
+  background: #ffffff; /* blanc pur total */
+}
+
+/* — décalage visuel à gauche : légèrement + de marge gauche que droite — */
+.hero {
+  --pad-left: clamp(28px, 7vw, 80px);
+  --pad-right: clamp(14px, 3vw, 32px);
+  padding-left: var(--pad-left);
+  padding-right: var(--pad-right);
+  background: #fff !important; /* force un blanc pur */
+}
+
+.hero-grid {
+  display: grid;
+  /* texte moins large au centre + espace pour une image plus large */
+  grid-template-columns: 0.95fr 1.05fr; /* <- ajusté */
+  align-items: start;
+  gap: clamp(32px, 5vw, 64px);
+}
+
+/* Texte resserré à gauche */
+.col-left {
+  max-width: 520px; /* <- réduit pour serrer le bloc texte */
+}
+
+.col-left p {
+  margin: 0 0 14px;
+  color: #222;
+  font-size: 1.05rem;
+  line-height: 1.7;
+}
+
+/* === Barre verte de recherche (placée AU-DESSUS de l'image) === */
+.cta {
+  display: inline-block;
+  margin-top: 28px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 999px;
+  padding: 14px 26px;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 16px rgba(100, 168, 89, 0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(100, 168, 89, 0.35);
+}
+
+/* Col droite : CTA en haut + image plus grande */
+.col-right {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
+  gap: 16px;
+}
 
-  h1 {
-    color: #2c3e50;
+.cta {
+  align-self: center;
+}
+
+.illus-wrap {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08);
+  padding: 24px;
+  width: 100%;
+  /* image plus grande (et responsive) */
+  max-width: min(760px, 92%); /* <- augmenté (600 -> 760) */
+}
+
+.hero-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+}
+
+/* === AVANTAGES === */
+.advantages {
+  background: #f7f9f7;
+  padding: 64px 0 72px;
+  border-top: 1px solid #e0e4e0;
+}
+.title-center {
+  text-align: center;
+  margin: 0 0 32px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  padding: 22px 20px;
+  text-align: center;
+  min-height: 180px;
+  display: grid;
+  align-content: start;
+  gap: 8px;
+}
+.card .icon {
+  font-size: 24px;
+}
+.card h3 {
+  margin: 8px 0 4px;
+  color: #1f2937;
+}
+.card p {
+  margin: 0;
+  color: #333;
+  font-size: 0.97rem;
+  line-height: 1.55;
+}
+
+/* === FOOTER (desktop & mobile) === */
+.site-footer {
+  background: #f3f4f3; /* même couleur que le header */
+  border-top: 1px solid #e0e2e0;
+  padding: 22px 0;
+}
+
+/* >>> GRAND ÉCRAN : logo à gauche, infos centre, wordmark à droite, plein écran */
+.footer-wrap {
+  /* supprime la limite ! */
+  max-width: none; /* <- clé : enlève la contrainte */
+  width: 100%;
+  padding: 0 24px; /* même marge intérieure que le header */
+  display: grid;
+  grid-template-columns: auto 1fr auto; /* logo | centre | mot-marque */
+  align-items: center;
+  gap: 24px;
+}
+
+/* Logo = hauteur du footer */
+.footer-wrap .brand img {
+  height: 72px; /* ↑ plus grand qu'avant */
+  width: auto;
+  display: block;
+}
+
+/* Bloc central : "EcoRide SAS" + coordonnées en 2 colonnes, centré */
+.contact {
+  justify-self: center;
+  text-align: center;
+  display: grid;
+  grid-auto-rows: min-content;
+  row-gap: 8px;
+}
+
+/* Titre centré sur toute la largeur du bloc central */
+.contact .title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+/* Liste en 2 colonnes sur grand écran */
+.contact ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 2 colonnes */
+  column-gap: 48px;
+  row-gap: 6px;
+}
+
+/* Email en noir (pas vert) */
+.contact a {
+  color: #111 !important;
+  text-decoration: none;
+}
+
+/* Mot-marque complètement à droite */
+.wordmark {
+  justify-self: end;
+  text-align: right;
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  color: #1b1b1b;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .footer-wrap {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    row-gap: 14px;
   }
 
-  button {
-    margin-top: 1.5rem;
-    padding: 0.8rem 1.6rem;
-    font-size: 1rem;
-    background-color: #64a859;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.3s;
+  /* Logo plus grand en mobile */
+  .footer-wrap .brand img {
+    height: 84px; /* ↑ agrandi en mobile */
+  }
 
-    &:hover {
-      background-color: #4d8645;
+  /* Wordmark centré en mobile */
+  .wordmark {
+    justify-self: center !important;
+    text-align: center !important;
+    width: 100%;
+    font-size: 30px; /* léger boost lisibilité */
+  }
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+  .col-left {
+    order: 2;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .col-right {
+    order: 1;
+  }
+  .cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 640px) {
+  .cards {
+    grid-template-columns: 1fr;
+  }
+  /* === FOOTER MOBILE : centrer le logo === */
+  @media (max-width: 768px) {
+    .footer-wrap {
+      grid-template-columns: 1fr;
+      justify-items: center;
+      text-align: center;
+    }
+    .footer-wrap .brand {
+      justify-content: center;
+    }
+    .footer-wrap .brand img {
+      margin: 0 auto;
     }
   }
 }

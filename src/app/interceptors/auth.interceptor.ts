@@ -1,31 +1,37 @@
-// src/app/interceptors/auth.interceptor.ts
-import { HttpInterceptorFn } from '@angular/common/http';
+import {
+  HttpErrorResponse,
+  HttpEvent,
+  HttpHandlerFn,
+  HttpInterceptorFn,
+  HttpRequest,
+} from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
+import { AuthService } from '../services/auth.service';
 
-const TOKEN_KEY = 'jwt_token';
+export const authInterceptor: HttpInterceptorFn = (
+  req: HttpRequest<unknown>,
+  next: HttpHandlerFn
+): Observable<HttpEvent<unknown>> => {
+  const auth = inject(AuthService);
+  const token = auth.getToken();
 
-/**
- * Ajoute "Authorization: Bearer <token>" à toutes les requêtes /api
- * (sauf le POST /api/login).
- */
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  // On ne met PAS le header sur l'appel de login
-  const isLoginCall =
-    req.method === 'POST' && (req.url.endsWith('/api/login') || req.url === '/api/login');
-
-  if (isLoginCall) {
+  // ✅ On n’ajoute pas d’Authorization pour /api/login
+  if (req.url.includes('/api/login')) {
     return next(req);
   }
 
-  // N'ajouter le header que pour les appels backend /api
-  const isApiCall = req.url.startsWith('/api');
+  const authReq = token
+    ? req.clone({
+        setHeaders: { Authorization: `Bearer ${token}` },
+      })
+    : req;
 
-  const token = localStorage.getItem(TOKEN_KEY);
-  if (isApiCall && token) {
-    const authReq = req.clone({
-      setHeaders: { Authorization: `Bearer ${token}` },
-    });
-    return next(authReq);
-  }
-
-  return next(req);
+  return next(authReq).pipe(
+    catchError((error: HttpErrorResponse) => {
+      console.error('❌ Interceptor caught error:', error);
+      return throwError(() => error);
+    })
+  );
 };

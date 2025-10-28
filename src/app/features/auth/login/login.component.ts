@@ -3,6 +3,7 @@ import { Component, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   selector: 'app-login',
@@ -15,10 +16,14 @@ export class LoginComponent {
   loading = signal(false);
   errorMsg = signal<string | null>(null);
   successMsg = signal<string | null>(null);
-
   form!: FormGroup;
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private authService: AuthService,
+    private userService: UserService, // ✅ nouveau
+    private router: Router
+  ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
@@ -33,10 +38,10 @@ export class LoginComponent {
     this.errorMsg.set(null);
 
     this.authService.login(email!, password!).subscribe({
-      next: () => {
+      next: async () => {
         this.loading.set(false);
-        // this.successMsg.set('Vous êtes connecté ✅'); // optionnel
-        this.router.navigate(['/home']); // redirection
+        await this.userService.loadMe(); // ✅ récupère le /api/me
+        this.router.navigate(['/home']); // ✅ redirige vers /home
       },
       error: () => {
         this.loading.set(false);

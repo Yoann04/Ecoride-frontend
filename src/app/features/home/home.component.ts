@@ -1,23 +1,38 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import TopbarComponent from '../shared/ui/topbar.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <h1>Bienvenue 👋</h1>
-    <p>Connexion réussie !</p>
-    <button (click)="logout()">Se déconnecter</button>
-  `,
+  imports: [CommonModule, RouterLink, TopbarComponent],
+  templateUrl: './home.html',
+  styleUrls: ['./home.scss'],
 })
 export default class HomeComponent {
-  constructor(private auth: AuthService, private router: Router) {}
+  data: any;
+  currentYear = new Date().getFullYear();
 
-  logout() {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+  // ✅ Chargement garanti de l’image (import.meta.url)
+  heroUrl = new URL('../../../assets/illustrations/hero-ecoride.png', import.meta.url).toString();
+
+  constructor(private auth: AuthService, private router: Router, private http: HttpClient) {}
+
+  callApi() {
+    this.http.get('/api/users').subscribe({
+      next: (res) => (this.data = res),
+      error: (err) => (this.data = err),
+    });
+  }
+
+  goSearch() {
+    alert('TODO: page “Chercher un trajet”');
+  }
+
+  goPublish() {
+    alert('TODO: page “Proposer un trajet”');
   }
 }

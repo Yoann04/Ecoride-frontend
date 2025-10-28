@@ -1,3 +1,99 @@
-<h1>Bienvenue 👋</h1>
-<p>Connexion réussie !</p>
-<button (click)="logout()">Se déconnecter</button>
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div class="col-left">
+        <h1>Partagez vos trajets et<br />Préservez la planète</h1>
+
+        <p>
+          <strong>EcoRide</strong> est une startup éco-responsable qui facilite le covoiturage entre
+          particuliers grâce à une plateforme simple, moderne et intuitive.
+        </p>
+        <p>
+          Notre mission est de <strong>réduire l’empreinte carbone</strong> liée aux déplacements
+          quotidiens tout en <strong>encourageant le partage et la convivialité</strong>.
+        </p>
+        <p>
+          Sur EcoRide, chacun peut <strong>trouver ou proposer un trajet</strong>
+          en quelques clics, selon sa localisation et ses besoins.
+        </p>
+        <p>
+          Nous croyons qu’en mutualisant les trajets, il est possible de
+          <strong>voyager plus vert, plus économique et plus solidaire</strong>.
+        </p>
+        <p>
+          Avec une interface claire, des outils de recherche performants et une communauté engagée,
+          <strong>EcoRide rend la mobilité durable accessible à tous</strong>.
+        </p>
+      </div>
+
+      <div class="col-right">
+        <a class="cta" routerLink="/search">🚗 Cliquez ici pour rechercher un covoiturage 🚗</a>
+
+        <div class="hero-card">
+          <img
+            class="hero-img"
+            src="/assets/illustrations/hero-ecoride.png"
+            alt="Voiture électrique — EcoRide"
+            loading="eager"
+            fetchpriority="high"
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AVANTAGES -->
+  <section class="advantages">
+    <div class="container">
+      <h2 class="title-center">Nos Avantages</h2>
+
+      <div class="cards">
+        <article class="card">
+          <div class="icon">🔒</div>
+          <h3>Sécurité</h3>
+          <p>Vos trajets sont vérifiés et vos conducteurs notés — pour une expérience fiable.</p>
+        </article>
+
+        <article class="card">
+          <div class="icon">💶</div>
+          <h3>Économie</h3>
+          <p>Partagez les frais entre passagers et réduisez le coût de vos déplacements.</p>
+        </article>
+
+        <article class="card">
+          <div class="icon">🌿</div>
+          <h3>Écologie</h3>
+          <p>Diminuez votre empreinte carbone en limitant le nombre de voitures sur les routes.</p>
+        </article>
+
+        <article class="card">
+          <div class="icon">✨</div>
+          <h3>Simplicité</h3>
+          <p>Une interface claire et intuitive pour organiser vos trajets en un clic.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-wrap">
+    <div class="brand">
+      <img src="/assets/illustrations/ecoride-logo.png" alt="" />
+    </div>
+
+    <div class="contact">
+      <div class="title">EcoRide SAS</div>
+      <ul>
+        <li>12 rue du Colibris, 75010 Paris, France</li>
+        <li>06 12 34 56 78</li>
+        <li><a href="mailto:contact@ecoride.com">contact@ecoride.com</a></li>
+        <li>L’équipe EcoRide vous répond sous 24h</li>
+      </ul>
+    </div>
+
+    <div class="wordmark">EcoRide</div>
+  </div>
+</footer>

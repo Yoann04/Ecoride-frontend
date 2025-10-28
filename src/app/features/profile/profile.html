@@ -1,0 +1,21 @@
+<h1>Mon profil</h1>
+
+<button (click)="refresh()" [disabled]="loading()">Rafraîchir</button>
+
+<div *ngIf="loading()">Chargement…</div>
+<p *ngIf="error()" style="color: #d00">{{ error() }}</p>
+
+<ng-container *ngIf="userSig() as user">
+  <div class="card">
+    <p><strong>Identité :</strong> {{ displayName() }}</p>
+    <p><strong>Email :</strong> {{ user.email }}</p>
+    <p><strong>Rôles :</strong> {{ user.roles.join(', ') }}</p>
+    <p>
+      <a routerLink="/home">← Retour à l’accueil</a>
+    </p>
+  </div>
+</ng-container>
+
+<ng-container *ngIf="!loading() && !userSig() && !error()">
+  <p>Aucun utilisateur chargé.</p>
+</ng-container>
