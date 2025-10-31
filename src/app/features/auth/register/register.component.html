@@ -1,0 +1,49 @@
+<section class="auth page-auth">
+  <div class="auth-shell">
+    <div class="panel">
+      <h1>Créer un compte</h1>
+      <p class="sub">Rejoignez EcoRide en quelques secondes.</p>
+
+      <form (ngSubmit)="register()" novalidate>
+        <div class="grid2">
+          <div class="field">
+            <label for="prenom">Prénom</label>
+            <input id="prenom" name="prenom" [(ngModel)]="prenom" required />
+          </div>
+          <div class="field">
+            <label for="nom">Nom</label>
+            <input id="nom" name="nom" [(ngModel)]="nom" required />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" [(ngModel)]="email" required />
+        </div>
+
+        <div class="field">
+          <label for="pwd">Mot de passe</label>
+          <input id="pwd" name="password" type="password" [(ngModel)]="password" required />
+        </div>
+
+        <button class="btn primary" type="submit" [disabled]="loading">S’inscrire</button>
+
+        <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+
+        <p class="hint">
+          Déjà inscrit ?
+          <a routerLink="/login">Se connecter</a>
+        </p>
+      </form>
+    </div>
+
+    <aside class="art" aria-hidden="true">
+      <div class="art-illus"></div>
+      <ul class="bullets">
+        <li>✅ Créez votre profil conducteur/passager</li>
+        <li>🌿 Favorisez une mobilité plus verte</li>
+        <li>✨ Interface simple & moderne</li>
+      </ul>
+    </aside>
+  </div>
+</section>

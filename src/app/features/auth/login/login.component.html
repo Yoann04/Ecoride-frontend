@@ -1,0 +1,82 @@
+<section class="auth page-auth">
+  <div class="auth-shell">
+    <!-- Colonne gauche : carte de connexion -->
+    <div class="panel">
+      <h1>Connexion</h1>
+      <p class="sub">Ravi de vous revoir! Continuez vos trajets en toute simplicité.</p>
+
+      <form (ngSubmit)="login()" autocomplete="on" novalidate>
+        <div class="field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            placeholder="ecoride@email.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="field">
+          <label for="pwd">Mot de passe</label>
+          <input
+            id="pwd"
+            name="password"
+            type="password"
+            [(ngModel)]="password"
+            placeholder="Motdepasse123!"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <!-- ligne "se souvenir / oublié" -->
+        <div class="meta-row">
+          <label class="remember">
+            <input type="checkbox" [(ngModel)]="rememberMe" name="remember" />
+            <span>Se souvenir de moi</span>
+          </label>
+
+          <!-- AVANT (bloqué)  -->
+          <!-- <a class="link-ghost" href="#" (click)="$event.preventDefault()">Mot de passe oublié ?</a> -->
+
+          <!-- APRÈS (navigue) -->
+          <a class="link-ghost" routerLink="/forgot-password">Mot de passe oublié ?</a>
+        </div>
+
+        <!-- … plus bas … -->
+
+        <p class="alt">
+          Pas encore de compte ?
+          <a class="link-ghost" routerLink="/register">Créer un compte</a>
+        </p>
+
+        <button class="btn primary" type="submit" [disabled]="loading">Se connecter</button>
+        <p class="hint">
+          Pas encore de compte ?
+          <a class="link-ghost" routerLink="/register">Créer un compte</a>
+        </p>
+
+        <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+
+        <p class="demo">
+          Démo : <strong>alice@example.com</strong> / <strong>Password123!</strong>
+        </p>
+      </form>
+    </div>
+    <!-- /panel -->
+
+    <!-- Colonne droite : illustration & bénéfices -->
+    <aside class="art" aria-hidden="true">
+      <div class="art-illus"></div>
+      <ul class="bullets">
+        <li>✅ Trajets vérifiés & conducteurs notés</li>
+        <li>💶 Économies partagées entre passagers</li>
+        <li>🌿 Mobilité plus verte et responsable</li>
+      </ul>
+    </aside>
+  </div>
+  <!-- /auth-shell -->
+</section>

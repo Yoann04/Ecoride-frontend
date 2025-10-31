@@ -1,0 +1,256 @@
+/* ===== Layout général ===== */
+.auth {
+  min-height: calc(100dvh - 72px);
+  display: grid;
+  place-items: center;
+  background: radial-gradient(1200px 600px at 10% -10%, rgba(100, 168, 89, 0.08), transparent 60%),
+    radial-gradient(900px 500px at 110% 110%, rgba(100, 168, 89, 0.06), transparent 60%), #fff;
+}
+
+.auth-shell {
+  width: min(1100px, 92vw);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 4vw, 48px);
+  align-items: stretch;
+  min-height: 560px;
+}
+
+.panel,
+.art {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* ===== Carte formulaire ===== */
+.panel {
+  background: #fff;
+  border-radius: 18px;
+  padding: clamp(22px, 4vw, 32px);
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eef0ee;
+}
+.panel h1 {
+  margin: 0 0 8px;
+  font: 800 28px/1.15 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: #2c6e2c;
+}
+.panel .sub {
+  margin: 0 0 18px;
+  color: #4b5563;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+}
+.field label {
+  font-weight: 600;
+  color: #1f2937;
+}
+.field input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #f9faf9;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.field input:focus {
+  border-color: rgba(100, 168, 89, 0.65);
+  box-shadow: 0 0 0 4px rgba(100, 168, 89, 0.14);
+  background: #fff;
+}
+
+/* Ligne "se souvenir / oublié" */
+.meta-row {
+  margin: 6px 0 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.remember {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+.remember input[type='checkbox'] {
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #64a859;
+  border-radius: 4px;
+  position: relative;
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+.remember input[type='checkbox']:checked {
+  background: #64a859;
+  border-color: #64a859;
+}
+.remember input[type='checkbox']:checked::after {
+  content: '✓';
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -56%);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+}
+.remember input[type='checkbox']:hover {
+  box-shadow: 0 0 0 3px rgba(100, 168, 89, 0.15);
+}
+.link-ghost {
+  color: #2b7a2b;
+  text-decoration: none;
+}
+.link-ghost:hover {
+  text-decoration: underline;
+}
+
+/* Bouton primaire */
+.btn.primary {
+  width: 100%;
+  height: 46px;
+  border: 0;
+  border-radius: 999px;
+  background: #64a859;
+  color: #fff;
+  font-weight: 700;
+  box-shadow: 0 10px 24px rgba(100, 168, 89, 0.28);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, opacity 0.12s ease;
+  cursor: pointer;
+}
+.btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px rgba(100, 168, 89, 0.34);
+}
+.btn.primary[disabled] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Pieds de carte */
+.hint {
+  margin: 12px 0 0;
+  font-size: 0.92rem;
+  color: #6b7280;
+}
+.alt {
+  text-align: center;
+  color: #374151;
+}
+
+/* ===== Colonne illustration ===== */
+.art {
+  position: relative;
+  min-height: 420px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #f6fbf6 0%, #ffffff 100%);
+  border: 1px solid #edf3ed;
+  overflow: hidden;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.06);
+}
+.art::before {
+  content: '';
+  position: absolute;
+  inset: -20% -10% auto -10%;
+  height: 60%;
+  background: radial-gradient(closest-side, rgba(100, 168, 89, 0.12), transparent 70%);
+  filter: blur(6px);
+}
+
+/* Illustration + puces */
+.art-illus {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 75%;
+  background: url('/assets/illustrations/hero-ecoride.png') no-repeat center bottom / contain;
+  opacity: 0.95;
+}
+.bullets {
+  position: absolute;
+  left: clamp(18px, 4vw, 32px);
+  top: clamp(18px, 3vw, 28px);
+  margin: 0;
+  padding: 14px 16px;
+  list-style: none;
+  background: #f6fbf6;
+  border: 1px solid #edf3ed;
+  border-radius: 14px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+  backdrop-filter: saturate(1.1) blur(2px);
+}
+.bullets li {
+  font-size: 0.95rem;
+  color: #1f2937;
+  padding: 6px 0;
+  white-space: nowrap;
+}
+
+/* Grille 2 colonnes pour register */
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+/* =====================  MOBILE PATCH (scopé composant)  ===================== */
+@media (max-width: 980px) {
+  :host .auth-shell {
+    grid-template-columns: 1fr !important;
+  }
+
+  :host .art {
+    order: -1;
+    min-height: 260px;
+  }
+
+  /* Les puces repassent dans le flux pour éviter tout chevauchement */
+  :host .bullets {
+    position: static !important;
+    margin: 12px !important;
+    white-space: normal !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+  }
+
+  /* L’illustration n’est plus absolue : elle ne “mange” plus la carte */
+  :host .art-illus {
+    position: static !important; /* <<< clé */
+    height: 220px !important;
+    background-size: contain !important;
+    background-position: center bottom !important;
+  }
+
+  :host .grid2 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Pied de carte lisible */
+  :host .hint {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 0.95rem;
+    color: #374151;
+  }
+  :host .hint a {
+    color: #2b7a2b;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  :host .hint a:hover {
+    text-decoration: underline;
+    color: #1f5c1f;
+  }
+}

@@ -1,21 +1,148 @@
-<h1>Mon profil</h1>
+<section class="profile">
+  <div class="wrap">
+    <!-- Barre titre + actions -->
+    <header class="titlebar">
+      <h1>Mon profil</h1>
+      <div class="actions">
+        <button class="ghost" (click)="refresh()">Rafraîchir</button>
+      </div>
+    </header>
 
-<button (click)="refresh()" [disabled]="loading()">Rafraîchir</button>
+    <!-- Picker (une seule fois) -->
+    <app-avatar-picker *ngIf="showPicker" (pick)="onPickAvatar($event)" (cancel)="onCancelPick()">
+    </app-avatar-picker>
 
-<div *ngIf="loading()">Chargement…</div>
-<p *ngIf="error()" style="color: #d00">{{ error() }}</p>
+    <!-- Loader / contenu -->
+    <ng-container *ngIf="loading(); else loaded">
+      <div class="skeleton">Chargement…</div>
+    </ng-container>
 
-<ng-container *ngIf="userSig() as user">
-  <div class="card">
-    <p><strong>Identité :</strong> {{ displayName() }}</p>
-    <p><strong>Email :</strong> {{ user.email }}</p>
-    <p><strong>Rôles :</strong> {{ user.roles.join(', ') }}</p>
-    <p>
-      <a routerLink="/home">← Retour à l’accueil</a>
-    </p>
+    <ng-template #loaded>
+      <p *ngIf="error()" class="error">{{ error() }}</p>
+
+      <!-- Carte profil EcoRide -->
+      <div *ngIf="userSig() as u" class="card">
+        <div class="header">
+          <div class="avatar clickable" (click)="showPicker = true" title="Changer d’avatar">
+            <img *ngIf="u.avatar; else initialsTpl" [src]="u.avatar" alt="Avatar" />
+            <ng-template #initialsTpl>{{ initials() }}</ng-template>
+          </div>
+
+          <div class="id">
+            <div class="name">{{ displayName() }}</div>
+            <div class="email">{{ u.email }}</div>
+            <div class="roles">
+              <span class="chip" *ngFor="let r of u.roles">{{ prettyRole(r) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <a routerLink="/home" class="back">&larr; Retour à l’accueil</a>
+        </div>
+      </div>
+
+      <!-- Espace utilisateur : onglets -->
+      <section class="user-tabs">
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'infos'"
+          (click)="activeTab = 'infos'"
+        >
+          Mes informations
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'trips'"
+          (click)="activeTab = 'trips'"
+        >
+          Mes trajets proposé<s></s>
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="activeTab === 'favorites'"
+          (click)="activeTab = 'favorites'"
+        >
+          Trajets favoris
+        </button>
+      </section>
+
+      <!-- Contenu des onglets -->
+      <section class="tab-content">
+        <!-- MES INFORMATIONS -->
+        <div *ngIf="activeTab === 'infos'">
+          <h3>Mes informations</h3>
+          <div class="info-line">
+            <span>Adresse e-mail</span>
+            <span class="accent">{{ userSig()?.email }}</span>
+          </div>
+          <div class="info-line">
+            <span>Mot de passe</span>
+            <a href="#" class="link">Modifier</a>
+          </div>
+        </div>
+
+        <!-- MES TRAJETS PROPOSÉS -->
+        <div *ngIf="activeTab === 'trips'">
+          <h3>Mes trajets proposés</h3>
+
+          <ng-container *ngIf="tripsDriver().length; else noTrips">
+            <div class="trip-card" *ngFor="let t of tripsDriver()">
+              <div class="trip-header">
+                <strong>{{ t.depart }} → {{ t.arrivee }}</strong>
+                <span class="date">{{ t.date | date : 'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="trip-body">
+                <p><strong>Places :</strong> {{ t.places }}</p>
+                <p><strong>Prix :</strong> {{ t.prix }} €</p>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #noTrips>
+            <p class="muted">Vous n’avez pas encore proposé de trajets.</p>
+          </ng-template>
+        </div>
+
+        <!-- TRAJETS FAVORIS -->
+        <div *ngIf="activeTab === 'favorites'">
+          <h3>Trajets favoris</h3>
+
+          <ng-container *ngIf="tripsFavorites().length; else noFavorites">
+            <div class="trip-card" *ngFor="let t of tripsFavorites()">
+              <div class="trip-header">
+                <strong>{{ t.depart }} → {{ t.arrivee }}</strong>
+                <span class="date">{{ t.date | date : 'dd/MM/yyyy' }}</span>
+              </div>
+              <div class="trip-body">
+                <p>
+                  <strong>Conducteur :</strong> {{ t.conducteur?.prenom }} {{ t.conducteur?.nom }}
+                </p>
+                <p><strong>Prix :</strong> {{ t.prix }} €</p>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #noFavorites>
+            <p class="muted">Aucun trajet enregistré en favoris.</p>
+          </ng-template>
+        </div>
+      </section>
+
+      <!-- Footer contact (mobile friendly) -->
+      <footer class="contact">
+        <h4>Nous contacter</h4>
+        <div class="contact-grid">
+          <div>
+            <p><strong>EcoRide SAS</strong></p>
+            <p>12 rue du Colibris<br />75000 Paris, France<br />06 12 34 56 78</p>
+          </div>
+          <div>
+            <p>contact@ecoride.com</p>
+            <p class="small">L’équipe EcoRide vous répond sous 24h</p>
+          </div>
+        </div>
+      </footer>
+    </ng-template>
   </div>
-</ng-container>
-
-<ng-container *ngIf="!loading() && !userSig() && !error()">
-  <p>Aucun utilisateur chargé.</p>
-</ng-container>
+</section>
