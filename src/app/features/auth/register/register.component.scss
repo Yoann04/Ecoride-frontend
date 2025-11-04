@@ -1,2 +1,1 @@
-/* On réutilise exactement le style de Login */
-@import '../login/login.component.scss';
+@use '../login/login.component.scss' as *;

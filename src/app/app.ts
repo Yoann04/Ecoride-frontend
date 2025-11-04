@@ -1,15 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import TopbarComponent from './features/shared/ui/topbar.component'; // ✅ AJOUT
+import { TopbarComponent } from './features/shared/ui/topbar.component';
 import { UserService } from './services/user.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, TopbarComponent], // ✅ AJOUT
+  imports: [RouterOutlet, TopbarComponent],
   template: `
     <app-topbar></app-topbar>
-    <!-- ✅ header -->
     <router-outlet></router-outlet>
   `,
 })

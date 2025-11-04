@@ -234,52 +234,72 @@
   color: #6b7280;
 }
 
-/* ===== Contact footer ===== */
-.contact {
+/* === FOOTER === */
+.site-footer {
   background: #f3f4f3;
-  margin-top: 24px;
-  padding: 16px;
-  border-top: 1px solid #dfe2df;
-}
-.contact-grid {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-.contact .small {
-  color: #666;
-  font-size: 0.9rem;
+  border-top: 1px solid #e0e2e0;
+  padding: 22px 0;
 }
 
-.trip-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e7ebe7;
-  margin-bottom: 12px;
-  transition: box-shadow 0.2s ease;
+.site-footer .brand img {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
 }
-.trip-card:hover {
-  box-shadow: 0 6px 16px rgba(100, 168, 89, 0.15);
-}
-.trip-header {
-  display: flex;
-  justify-content: space-between;
+
+.footer-wrap {
+  max-width: none;
+  width: 100%;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  color: #2c6e2c;
-  font-weight: 600;
+  gap: 24px;
+}
+
+.footer-wrap .brand img {
+  height: 72px;
+  width: auto;
+  display: block;
+}
+
+.contact {
+  justify-self: center;
+  text-align: center;
+  display: grid;
+  grid-auto-rows: min-content;
+  row-gap: 8px;
+}
+
+.contact .title {
+  font-weight: 700;
   margin-bottom: 6px;
 }
-.trip-header .date {
-  font-size: 0.9rem;
-  color: #666;
+
+.contact ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 48px;
+  row-gap: 6px;
 }
-.trip-body p {
-  margin: 2px 0;
-  color: #333;
-  font-size: 0.95rem;
+
+.contact a {
+  color: #111 !important;
+  text-decoration: none;
+}
+
+.wordmark {
+  justify-self: end;
+  text-align: right;
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  color: #1b1b1b;
 }
 
 /* ===== Responsive ===== */
@@ -293,5 +313,50 @@
   }
   .tab-content {
     padding: 14px 16px;
+  }
+  .site-footer {
+    margin-top: 48px;
+    background: #f9fbf9;
+    border-top: 1px solid #eef2ee;
+    color: #222;
+
+    .footer-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 28px 16px;
+      display: grid;
+      gap: 20px;
+      grid-template-columns: 1fr; /* mobile */
+      align-items: center;
+    }
+
+    .brand img {
+      height: 44px;
+      width: auto;
+      display: block;
+    }
+
+    .contact {
+      .footer-title {
+        color: #64a859;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        li + li {
+          margin-top: 4px;
+        }
+        a {
+          color: #2b7a2b;
+          text-decoration: none;
+        }
+        a:hover {
+          text-decoration: underline;
+        }
+      }
+    }
   }
 }

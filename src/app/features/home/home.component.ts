@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import TopbarComponent from '../shared/ui/topbar.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterLink, TopbarComponent],
+  imports: [CommonModule /* , TopbarComponent */],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })

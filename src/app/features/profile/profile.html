@@ -1,16 +1,16 @@
 <section class="profile">
   <div class="wrap">
-    <!-- Barre titre + actions -->
+    <!-- Barre titre -->
     <header class="titlebar">
       <h1>Mon profil</h1>
-      <div class="actions">
-        <button class="ghost" (click)="refresh()">Rafraîchir</button>
-      </div>
     </header>
 
-    <!-- Picker (une seule fois) -->
-    <app-avatar-picker *ngIf="showPicker" (pick)="onPickAvatar($event)" (cancel)="onCancelPick()">
-    </app-avatar-picker>
+    <!-- Composant modal (affiché seulement si showPicker = true) -->
+    <app-avatar-picker
+      *ngIf="showPicker"
+      (pick)="onPickAvatar($event)"
+      (cancel)="onCancelPick()"
+    ></app-avatar-picker>
 
     <!-- Loader / contenu -->
     <ng-container *ngIf="loading(); else loaded">
@@ -56,7 +56,7 @@
           [class.active]="activeTab === 'trips'"
           (click)="activeTab = 'trips'"
         >
-          Mes trajets proposé<s></s>
+          Mes trajets proposés
         </button>
         <button
           class="tab-btn"
@@ -116,7 +116,8 @@
               </div>
               <div class="trip-body">
                 <p>
-                  <strong>Conducteur :</strong> {{ t.conducteur?.prenom }} {{ t.conducteur?.nom }}
+                  <strong>Conducteur :</strong>
+                  {{ t.conducteur?.prenom }} {{ t.conducteur?.nom }}
                 </p>
                 <p><strong>Prix :</strong> {{ t.prix }} €</p>
               </div>
@@ -128,21 +129,27 @@
           </ng-template>
         </div>
       </section>
-
-      <!-- Footer contact (mobile friendly) -->
-      <footer class="contact">
-        <h4>Nous contacter</h4>
-        <div class="contact-grid">
-          <div>
-            <p><strong>EcoRide SAS</strong></p>
-            <p>12 rue du Colibris<br />75000 Paris, France<br />06 12 34 56 78</p>
-          </div>
-          <div>
-            <p>contact@ecoride.com</p>
-            <p class="small">L’équipe EcoRide vous répond sous 24h</p>
-          </div>
-        </div>
-      </footer>
     </ng-template>
   </div>
 </section>
+
+<!-- FOOTER — même que la Home -->
+<footer class="site-footer">
+  <div class="footer-wrap">
+    <div class="brand">
+      <img src="assets/illustrations/Logo-ecoride.png" alt="EcoRide logo" />
+    </div>
+
+    <div class="contact">
+      <div class="title">EcoRide SAS</div>
+      <ul>
+        <li>12 rue du Colibris, 75010 Paris, France</li>
+        <li>06 12 34 56 78</li>
+        <li><a href="mailto:contact@ecoride.com">contact@ecoride.com</a></li>
+        <li>L’équipe EcoRide vous répond sous 24h</li>
+      </ul>
+    </div>
+
+    <div class="wordmark">EcoRide</div>
+  </div>
+</footer>

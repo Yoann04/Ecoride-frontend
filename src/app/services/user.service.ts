@@ -1,3 +1,4 @@
+// src/app/services/user.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, firstValueFrom } from 'rxjs';
@@ -19,15 +20,18 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
+  /** lecture rapide */
   get value(): CurrentUser | null {
     return this.currentUserSubject.value;
   }
 
+  /** maj + persistance */
   setCurrentUser(user: CurrentUser): void {
     this.currentUserSubject.next(user);
     localStorage.setItem('current_user', JSON.stringify(user));
   }
 
+  /** restauration au démarrage */
   bootstrapFromStorage(): void {
     const raw = localStorage.getItem('current_user');
     if (raw) {
@@ -39,11 +43,13 @@ export class UserService {
     }
   }
 
+  /** nettoyage */
   clear(): void {
     this.currentUserSubject.next(null);
     localStorage.removeItem('current_user');
   }
 
+  /** avatar local (pas d’upload backend ici) */
   setAvatar(url: string): void {
     const cur = this.currentUserSubject.value;
     if (!cur) return;
@@ -51,17 +57,26 @@ export class UserService {
     this.setCurrentUser(updated);
   }
 
-  // --- API methods (used only when not in demo) ---
+  // -------- API (quand pas en mode démo) --------
+
   async loadMe(): Promise<void> {
     const me = await firstValueFrom(this.http.get<CurrentUser>('/api/me'));
     this.setCurrentUser(me);
   }
 
   async getTripsByDriver(): Promise<any[]> {
-    return firstValueFrom(this.http.get<any[]>('/api/trips/by-driver'));
+    try {
+      return await firstValueFrom(this.http.get<any[]>('/api/trips/by-driver'));
+    } catch {
+      return [];
+    }
   }
 
   async getFavoriteTrips(): Promise<any[]> {
-    return firstValueFrom(this.http.get<any[]>('/api/trips/favorites'));
+    try {
+      return await firstValueFrom(this.http.get<any[]>('/api/trips/favorites'));
+    } catch {
+      return [];
+    }
   }
 }

@@ -1,37 +1,55 @@
+// src/app/interceptors/auth.interceptor.ts
 import {
   HttpErrorResponse,
-  HttpEvent,
   HttpHandlerFn,
   HttpInterceptorFn,
   HttpRequest,
 } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
+import { Router } from '@angular/router';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { AuthService } from '../services/auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
-): Observable<HttpEvent<unknown>> => {
+) => {
   const auth = inject(AuthService);
-  const token = auth.getToken();
+  const router = inject(Router);
 
-  // ✅ On n’ajoute pas d’Authorization pour /api/login
-  if (req.url.includes('/api/login')) {
-    return next(req);
-  }
+  const token = auth.getToken?.() || null;
 
-  const authReq = token
-    ? req.clone({
-        setHeaders: { Authorization: `Bearer ${token}` },
-      })
+  // Détermine si c’est bien une URL /api, qu’elle soit relative ou absolue
+  const url = new URL(req.url, window.location.origin);
+  const isApi = url.pathname.startsWith('/api');
+
+  const isLogin = url.pathname === '/api/login';
+
+  // 👇 Routes publiques : GET /api/trips et GET /api/trips/{id}
+  const isPublicTripsGet =
+    req.method === 'GET' &&
+    (url.pathname === '/api/trips' || /^\/api\/trips\/\d+$/.test(url.pathname));
+
+  // 👉 On n’attache PAS le Bearer sur ces routes publiques
+  const shouldAttachToken = isApi && !isLogin && !isPublicTripsGet && !!token;
+
+  const authReq = shouldAttachToken
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
     : req;
 
+  // Sur 401 : on évite la redirection auto pour les routes trips (on laisse l’UI dire “0 résultat”)
+  const NO_REDIRECT_ON_401 = ['/api/trips', '/api/trips/by-driver', '/api/trips/favorites'];
+
   return next(authReq).pipe(
-    catchError((error: HttpErrorResponse) => {
-      console.error('❌ Interceptor caught error:', error);
-      return throwError(() => error);
+    catchError((err: unknown) => {
+      if (err instanceof HttpErrorResponse && err.status === 401) {
+        if (!NO_REDIRECT_ON_401.some((p) => url.pathname.startsWith(p))) {
+          auth.logout?.();
+          router.navigate(['/login']);
+        }
+      }
+      return throwError(() => err);
     })
   );
 };

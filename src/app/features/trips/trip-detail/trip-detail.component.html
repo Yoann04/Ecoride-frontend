@@ -1,0 +1,90 @@
+<div class="trip-page">
+  <div class="wrap">
+    <div class="titlebar">
+      <h1>Trajet</h1>
+      <a routerLink="/trips" class="ghost">← Retour aux recherches</a>
+    </div>
+
+    <div *ngIf="loading" class="skeleton"></div>
+    <p *ngIf="!loading && error" class="error">{{ error }}</p>
+
+    <section *ngIf="!loading && trip" class="card">
+      <!-- En-tête -->
+      <header class="header">
+        <div class="avatar-wrapper">
+          <ng-container *ngIf="trip.driver?.avatar; else initials">
+            <img class="avatar" [src]="trip.driver.avatar" alt="Avatar conducteur" />
+          </ng-container>
+          <ng-template #initials>
+            <div class="avatar initials">
+              {{ trip.driver?.prenom?.[0] }}{{ trip.driver?.nom?.[0] }}
+            </div>
+          </ng-template>
+        </div>
+
+        <div class="id">
+          <div class="name">{{ trip.driver?.prenom }} {{ trip.driver?.nom }}</div>
+          <div class="meta">Départ le {{ trip.departureDate | date : 'dd/MM/yyyy' }}</div>
+        </div>
+
+        <div class="chips">
+          <span class="chip">Prix : {{ trip.price | number : '1.2-2' }} €</span>
+          <span class="chip">{{ trip.availableSeats }} place(s) disponible(s)</span>
+          <span class="chip" *ngIf="trip.isEcological">Éco</span>
+        </div>
+      </header>
+
+      <!-- Infos principales -->
+      <div class="grid-infos">
+        <div class="info">
+          <div class="label">Départ</div>
+          <div class="value strong">{{ trip.departureCity }}</div>
+          <div class="sub">{{ toTime(trip.departureDate, trip.departureTime) }}</div>
+        </div>
+
+        <div class="info">
+          <div class="label">Arrivée</div>
+          <div class="value strong">{{ trip.arrivalCity }}</div>
+          <div class="sub">
+            {{ trip.arrivalTime ? toTime(trip.arrivalDate, trip.arrivalTime) : '—' }}
+          </div>
+        </div>
+
+        <div class="info">
+          <div class="label">Conducteur</div>
+          <div class="value strong">
+            {{
+              trip.driver?.pseudo || (trip.driver?.prenom || '') + ' ' + (trip.driver?.nom || '')
+                | titlecase
+            }}
+          </div>
+        </div>
+
+        <div class="info">
+          <div class="label">Véhicule</div>
+          <div class="value">{{ trip.vehicle?.brand?.libelle || trip.vehicle?.marque || '—' }}</div>
+          <ng-container *ngIf="trip.vehicle?.model"> {{ ' ' + trip.vehicle.model }}</ng-container>
+        </div>
+      </div>
+
+      <hr class="sep" />
+
+      <!-- Bas de carte -->
+      <div class="extras">
+        <div class="left">
+          <div class="subtitle">Informations supplémentaires</div>
+          <a class="contact" href="mailto:{{ trip.driver?.email }}">Contacter le conducteur</a>
+        </div>
+
+        <div class="right">
+          <div class="rating">
+            <div class="subtitle">Avis sur le conducteur</div>
+            <div class="note">4 / 5 <span class="muted">(17 avis)</span></div>
+          </div>
+
+          <button class="cta">RÉSERVER CE TRAJET</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>

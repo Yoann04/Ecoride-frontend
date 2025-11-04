@@ -1,0 +1,100 @@
+<div class="page">
+  <main class="search-page">
+    <h1>Covoiturage</h1>
+
+    <!-- Barre de recherche -->
+    <form class="search-form" (ngSubmit)="search()">
+      <div class="grid">
+        <label class="field">
+          <span>Départ</span>
+          <input type="text" [(ngModel)]="origin" name="origin" placeholder="Ex. Dijon" />
+        </label>
+
+        <label class="field">
+          <span>Arrivée</span>
+          <input type="text" [(ngModel)]="destination" name="destination" placeholder="Ex. Nice" />
+        </label>
+
+        <label class="field">
+          <span>Date</span>
+          <input type="date" [(ngModel)]="date" name="date" />
+        </label>
+
+        <button type="submit" class="search-btn" [disabled]="loading">Recherche</button>
+      </div>
+
+      <div class="actions">
+        <label>
+          Trier par
+          <select #sortSel (change)="onSortChange(sortSel.value)">
+            <option value="date-asc">Date (croissante)</option>
+            <option value="date-desc">Date (décroissante)</option>
+            <option value="price-asc">Prix (croissant)</option>
+            <option value="price-desc">Prix (décroissant)</option>
+          </select>
+        </label>
+        <span class="results-count">{{ total }} résultat(s)</span>
+      </div>
+    </form>
+
+    <p *ngIf="error" class="error">{{ error }}</p>
+
+    <!-- Image illustrée quand aucun résultat -->
+    <section class="hero" *ngIf="!loading && !error && trips.length === 0">
+      <img
+        class="hero-img"
+        src="/assets/illustrations/hero-ecoride.png"
+        alt="EcoRide illustration"
+        loading="eager"
+        fetchpriority="high"
+      />
+    </section>
+
+    <!-- Résultats -->
+    <section class="list" *ngIf="trips.length > 0">
+      <article class="trip-card" *ngFor="let t of trips">
+        <div class="left">
+          <div class="avatar-wrapper">
+            <ng-container *ngIf="t.driver?.avatar; else initials">
+              <img class="avatar" [src]="t.driver?.avatar" alt="Avatar conducteur" />
+            </ng-container>
+
+            <ng-template #initials>
+              <div class="avatar initials">{{ t.driver?.prenom?.[0] }}{{ t.driver?.nom?.[0] }}</div>
+            </ng-template>
+          </div>
+          <div class="info">
+            <div class="driver">{{ fullName(t) }}</div>
+          </div>
+        </div>
+
+        <div class="right">
+          <div class="seats">{{ t.availableSeats }} place(s) disponible(s)</div>
+          <div class="price">{{ t.price }} €</div>
+          <a class="btn-view" [routerLink]="['/trips', t.id]">Voir</a>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-wrap">
+      <div class="brand">
+        <img src="assets/illustrations/Logo-ecoride.png" alt="EcoRide logo" />
+      </div>
+
+      <div class="contact">
+        <div class="title">EcoRide SAS</div>
+        <ul>
+          <li>12 rue du Colibris, 75010 Paris, France</li>
+          <li>06 12 34 56 78</li>
+          <li><a href="mailto:contact@ecoride.com">contact@ecoride.com</a></li>
+          <li>L’équipe EcoRide vous répond sous 24h</li>
+        </ul>
+      </div>
+
+      <div class="wordmark">EcoRide</div>
+    </div>
+  </footer>
+</div>

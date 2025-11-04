@@ -2,21 +2,22 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, effect, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CurrentUser, UserService } from '../../services/user.service';
-import TopbarComponent from '../shared/ui/topbar.component';
-import AvatarPickerComponent from './avatar-picker.component';
-
+import type { CurrentUser } from '../../services/user.service';
+import { UserService } from '../../services/user.service';
+import AvatarPickerComponent from '../shared/ui/avatar-picker.component';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, TopbarComponent, AvatarPickerComponent],
+  imports: [CommonModule, RouterLink, AvatarPickerComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.scss'],
 })
 export default class ProfileComponent implements OnInit {
+  /** UI state */
   showPicker = false;
   activeTab: 'infos' | 'trips' | 'favorites' = 'infos';
 
+  /** Signals */
   userSig = signal<CurrentUser | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -25,16 +26,19 @@ export default class ProfileComponent implements OnInit {
   tripsFavorites = signal<any[]>([]);
 
   constructor(private userService: UserService, private auth: AuthService) {
-    // keep local signal in sync if user changes elsewhere
+    // garde le signal user en phase avec le service
     effect(() => {
       const u = this.userService.value;
       if (u) this.userSig.set(u);
     });
   }
 
+  /** Affichages dérivés */
   displayName = computed(() => {
     const u = this.userSig();
-    return u ? (u.prenom && u.nom ? `${u.prenom} ${u.nom}` : u.email) : '';
+    if (!u) return '';
+    if (u.prenom && u.nom) return `${u.prenom} ${u.nom}`;
+    return u.email ?? '';
   });
 
   initials = computed(() => {
@@ -43,90 +47,92 @@ export default class ProfileComponent implements OnInit {
     return (letters || u?.email?.[0] || '?').toUpperCase();
   });
 
+  /** Cycle de vie */
   async ngOnInit() {
-    this.loading.set(true);
-    this.error.set(null);
-
-    // Always restore what we have first (demo or real)
+    // restaure local si présent (utile après F5)
     this.userService.bootstrapFromStorage();
-    if (this.userService.value) {
-      this.userSig.set(this.userService.value);
-    }
+    if (this.userService.value) this.userSig.set(this.userService.value);
 
-    // --- DEMO MODE: never call the API ---
-    if (this.auth.isDemo()) {
-      this.tripsDriver.set([]); // could put sample data here if you want
-      this.tripsFavorites.set([]);
-      this.loading.set(false);
-      return;
-    }
-
-    // --- REAL TOKEN: call backend ---
-    if (this.auth.hasToken()) {
-      try {
-        await this.userService.loadMe();
-        this.userSig.set(this.userService.value);
-        this.tripsDriver.set(await this.userService.getTripsByDriver());
-        this.tripsFavorites.set(await this.userService.getFavoriteTrips());
-      } catch {
-        this.error.set('Impossible de charger votre profil ou vos trajets.');
-      } finally {
-        this.loading.set(false);
-      }
-      return;
-    }
-
-    // No token at all
-    this.loading.set(false);
-    this.error.set("Vous n'êtes pas connecté.");
+    await this.refresh();
   }
 
-  async refresh() {
-    if (this.auth.isDemo()) return; // nothing to refresh offline
+  /** Actions */
+  async refresh(): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
+
+    // ✅ Vérifie simplement la connexion
+    if (!this.auth.hasToken()) {
+      this.loading.set(false);
+      this.error.set("Vous n'êtes pas connecté.");
+      return;
+    }
+
     try {
+      // /api/me
       await this.userService.loadMe();
       this.userSig.set(this.userService.value);
+
+      // Trajets → best-effort (pas bloquant si échec)
+      await this.loadTripsBestEffort();
     } catch {
-      this.error.set('Impossible de charger votre profil (API indisponible).');
+      this.error.set('Impossible de charger votre profil.');
     } finally {
       this.loading.set(false);
     }
   }
 
-  onPickAvatar(src: string | null) {
-    const u = this.userService.value;
-    if (!u) return;
-    const updated = { ...u };
+  private async loadTripsBestEffort() {
+    const [byDriver, favorites] = await Promise.allSettled([
+      this.userService.getTripsByDriver?.() ?? Promise.resolve([]),
+      this.userService.getFavoriteTrips?.() ?? Promise.resolve([]),
+    ]);
 
-    if (src) updated.avatar = src;
-    else delete updated.avatar; // ← revenir aux initiales
+    if (byDriver.status === 'fulfilled') this.tripsDriver.set(byDriver.value as any[]);
+    else console.warn('Trips by driver failed:', byDriver.reason);
 
-    this.userService.setCurrentUser(updated);
-    this.userSig.set(updated);
+    if (favorites.status === 'fulfilled') this.tripsFavorites.set(favorites.value as any[]);
+    else console.warn('Favorite trips failed:', favorites.reason);
+  }
+
+  setTab(tab: 'infos' | 'trips' | 'favorites') {
+    this.activeTab = tab;
+  }
+
+  /** Avatar picker */
+  onCancelPick(): void {
     this.showPicker = false;
   }
 
-  removeAvatar() {
-    const u = this.userService.value;
-    if (!u) return;
-    const { avatar, ...rest } = u as any;
-    this.userService.setCurrentUser(rest);
-    this.userSig.set(rest);
-  }
-  onCancelPick() {
-    this.showPicker = false;
-  }
+  // src/app/features/profile/profile.component.ts
+  async onPickAvatar(value: string | null): Promise<void> {
+    this.loading.set(true);
+    this.error.set(null);
+    try {
+      if (value === null) {
+        this.userService.setAvatar(''); // ou null selon ton modèle
+      } else {
+        this.userService.setAvatar(value);
+      }
+      // Met à jour l'UI locale
+      this.userSig.set(this.userService.value);
+      this.showPicker = false;
 
-  prettyRole(role: string): string {
-    switch (role) {
-      case 'ROLE_USER':
-        return 'Utilisateur';
-      case 'ROLE_ADMIN':
-        return 'Administrateur';
-      default:
-        return role.replace(/^ROLE_/, '').toLowerCase();
+      // ❌ Evite le refresh serveur ici:
+      // await this.userService.loadMe();
+    } catch (e) {
+      console.error(e);
+      this.error.set("Échec de la mise à jour de l'avatar.");
+    } finally {
+      this.loading.set(false);
     }
+  }
+
+  /** Utils */
+  prettyRole(role: string): string {
+    const r = role?.toUpperCase?.() ?? '';
+    if (r.includes('ROLE_ADMIN')) return 'Administrateur';
+    if (r.includes('ROLE_USER')) return 'Utilisateur';
+    return r.replace(/^ROLE_/, '').toLowerCase();
   }
 }

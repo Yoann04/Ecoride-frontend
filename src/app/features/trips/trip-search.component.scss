@@ -1,0 +1,340 @@
+/* ===== Page container ===== */
+.search-page {
+  width: min(1050px, 92vw);
+  margin: 0 auto;
+  padding: 28px 0 64px;
+}
+
+/* ===== Title ===== */
+h1 {
+  margin: 0 0 18px 0;
+  color: #2c6e2c;
+  font: 800 32px/1.1 'Poppins', system-ui, sans-serif;
+}
+
+/* ===== Search form ===== */
+.search-form {
+  background: #fff;
+  border: 1px solid #edf3ed;
+  border-radius: 18px;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.08);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 0 auto;
+  max-width: 100%;
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr auto;
+    gap: 18px;
+    align-items: end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    span {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    input {
+      height: 48px;
+      border: 1px solid #e0e4e0;
+      border-radius: 12px;
+      padding: 0 12px;
+      font-size: 15px;
+      background: #fafafa;
+
+      &:focus {
+        outline: none;
+        border-color: #64a859;
+        box-shadow: 0 0 0 3px rgba(100, 168, 89, 0.15);
+      }
+    }
+
+    input[type='date'] {
+      padding-right: 36px;
+      line-height: 48px;
+    }
+  }
+
+  /* Bouton unique (pas de doublon ailleurs) */
+  .search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 48px;
+    padding: 0 18px;
+    transform: translateY(-14px);
+    margin: 0;
+    box-sizing: border-box;
+    align-self: end;
+    border: none;
+    border-radius: 12px;
+    background: #64a859;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(100, 168, 89, 0.25);
+    cursor: pointer;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: #579d4f;
+    }
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    select {
+      border: 1px solid #e0e4e0;
+      border-radius: 10px;
+      height: 40px;
+      padding: 0 10px;
+      background: #fff;
+      font-size: 14px;
+    }
+
+    .results-count {
+      color: #6b7280;
+      font-size: 14px;
+    }
+  }
+}
+
+/* ===== Results list ===== */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+/* Cartes de trajets compactes */
+.trip-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff;
+  border-radius: 14px;
+  padding: 8px 14px; /* ← ajuste la HAUTEUR ici */
+  margin-bottom: 12px;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.05);
+  min-height: unset;
+  line-height: 1.2;
+
+  .left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #eaf4ea;
+      flex: 0 0 40px;
+    }
+
+    .info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .driver {
+        font-weight: 600;
+        font-size: 15px;
+      }
+      .route {
+        color: #444;
+        font-size: 14px;
+      }
+      .date {
+        color: #666;
+        font-size: 13px;
+      }
+    }
+  }
+
+  .right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    .seats {
+      color: #64a859;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .price {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .btn-view {
+      background: #64a859;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 4px 12px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease;
+
+      &:hover {
+        background: #579d4f;
+      }
+    }
+  }
+}
+
+/* ===== Hero (optionnel) ===== */
+.hero {
+  margin-top: 24px;
+}
+.hero-img {
+  display: block;
+  width: 100%;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.avatar-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #eaf3ea;
+  font-weight: 600;
+  color: #64a859;
+  font-size: 18px;
+  text-transform: uppercase;
+}
+
+.avatar-wrapper img.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar.initials {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* === FOOTER === */
+.site-footer {
+  background: #f3f4f3;
+  border-top: 1px solid #e0e2e0;
+  padding: 22px 0;
+  margin-top: auto; /* Permet de rester collé en bas */
+}
+
+.site-footer .brand img {
+  height: 72px;
+  width: auto;
+  object-fit: contain;
+}
+
+.footer-wrap {
+  max-width: none;
+  width: 100%;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 24px;
+}
+
+.footer-wrap .brand img {
+  height: 72px;
+  width: auto;
+  display: block;
+}
+
+.contact {
+  justify-self: center;
+  text-align: center;
+  display: grid;
+  grid-auto-rows: min-content;
+  row-gap: 8px;
+}
+
+.contact .title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.contact ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 48px;
+  row-gap: 6px;
+}
+
+.contact a {
+  color: #111 !important;
+  text-decoration: none;
+}
+
+.wordmark {
+  justify-self: end;
+  text-align: right;
+  font-family: 'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  font-weight: 800;
+  font-size: 28px;
+  letter-spacing: 0.02em;
+  color: #1b1b1b;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .search-form .grid {
+    grid-template-columns: 1fr;
+  }
+  .trip-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .trip-card .right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

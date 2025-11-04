@@ -1,3 +1,12 @@
+.topbar .nav-link {
+  color: #222;
+  font-weight: 600;
+  text-decoration: none;
+}
+.topbar .nav-link.active {
+  color: #64a859;
+} /* ✅ seul le lien actif devient vert */
+
 .topbar {
   position: sticky;
   top: 0;
@@ -27,6 +36,17 @@
   max-width: 100%;
 }
 
+.menu a {
+  margin-right: 18px;
+  text-decoration: none;
+}
+.menu a.active {
+  color: #2b7a2b; /* vert EcoRide */
+  background: #f2fbf2;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 700;
+}
 /* Groupe gauche : logo + menu */
 .left-group {
   display: flex;
@@ -144,7 +164,20 @@
   background: #fff;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
+.hero {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 60px;
 
+  .hero-img {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    opacity: 0.95;
+    filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.08));
+  }
+}
 /* Burger (mobile) */
 .burger {
   display: none;

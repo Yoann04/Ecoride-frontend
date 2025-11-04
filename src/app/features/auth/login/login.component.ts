@@ -1,8 +1,8 @@
-// login.component.ts
+// src/app/features/auth/login/login.component.ts
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../services/auth.service';
 import { UserService } from '../../../services/user.service';
 
@@ -22,6 +22,7 @@ export default class LoginComponent {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private userService: UserService,
     private auth: AuthService
   ) {}
@@ -29,35 +30,32 @@ export default class LoginComponent {
   async login() {
     this.errorMessage = '';
     this.loading = true;
-    try {
-      // ✅ identifiants de démo (garde ce que tu veux afficher dans la page)
-      const ok =
-        this.email.trim().toLowerCase() === 'alice@example.com' && this.password === 'Password123!';
 
-      if (ok) {
-        // on sauvegarde un "profil" minimal (démo)
-        this.userService.setCurrentUser({
-          id: 1,
-          email: this.email,
-          nom: 'Dupont',
-          prenom: 'Alice',
-          roles: ['ROLE_USER'],
-        });
+    this.auth.login(this.email.trim(), this.password).subscribe({
+      next: async (resp) => {
+        try {
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/profile';
 
-        // ✅ surtout : on écrit le token avec la MÊME clé que le guard lit
-        this.auth.setToken('fake-demo-token');
+          // 1) Démo : pas d'appel /api/me
+          if (resp?.demo) {
+            this.router.navigate([returnUrl]);
+            return;
+          }
 
-        // ✅ redirection vers le profil (le guard te laissera passer)
-        await this.router.navigate(['/profile']);
-        return;
-      }
-
-      this.errorMessage = 'Email ou mot de passe incorrect.';
-    } catch (e) {
-      console.error(e);
-      this.errorMessage = 'Une erreur est survenue.';
-    } finally {
-      this.loading = false;
-    }
+          // 2) Vrai backend : on charge le profil
+          await this.userService.loadMe();
+          this.router.navigate([returnUrl]);
+        } catch {
+          this.errorMessage = 'Connexion ok mais impossible de charger votre profil.';
+        } finally {
+          this.loading = false;
+        }
+      },
+      error: (err) => {
+        this.errorMessage =
+          err?.status === 401 ? 'Email ou mot de passe incorrect.' : 'Une erreur est survenue.';
+        this.loading = false;
+      },
+    });
   }
 }

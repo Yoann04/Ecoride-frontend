@@ -1,32 +1,31 @@
+// src/app/services/auth.service.ts
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, of } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { UserService } from './user.service';
 
 export const TOKEN_KEY = 'jwt_token';
-const DEMO_TOKEN = 'fake-demo-token'; // ✅ pour la connexion démo locale
+const DEMO_TOKEN = 'fake-demo-token'; // token factice pour le mode démo
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = 'http://127.0.0.1:8000/api';
+  private apiUrl = '/api';
   private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
 
   constructor(private http: HttpClient, private userService: UserService, private router: Router) {}
 
-  /** ✅ Enregistre un token localement */
+  // === Gestion du token ===
   setToken(token: string) {
     localStorage.setItem(TOKEN_KEY, token);
     this.isLoggedInSubject.next(true);
   }
 
-  /** ✅ Lecture du token JWT stocké */
   getToken(): string | null {
     return localStorage.getItem(TOKEN_KEY);
   }
 
-  /** ✅ Supprime le token et réinitialise la session */
   logout(): void {
     localStorage.removeItem(TOKEN_KEY);
     this.userService.clear();
@@ -34,50 +33,33 @@ export class AuthService {
     this.router.navigate(['/home']);
   }
 
-  /** ✅ Retourne vrai si un token existe */
   hasToken(): boolean {
     return !!localStorage.getItem(TOKEN_KEY);
   }
 
-  /** ✅ Observable pour suivre le statut de connexion */
   isLoggedIn(): Observable<boolean> {
     return this.isLoggedInSubject.asObservable();
   }
 
-  /** ✅ Mode démo (token factice local) */
-  isDemo(): boolean {
+  /** ✅ Vrai si on est en mode démo (token factice) */
+  public isDemo(): boolean {
     return this.getToken() === DEMO_TOKEN;
   }
 
-  // ============================================================
-  // === Authentification : vraie API Symfony OU mode démo ======
-  // ============================================================
-
+  // === Authentification ===
   /**
-   * Authentification utilisateur.
-   * Si email = "alice@example.com" et password = "Password123!",
-   * on bascule en mode démo sans appeler le backend.
+   * Login standard : tente l'API.
+   * Si tu veux autoriser un mode démo local sans backend, on court-circuite si email/mdp correspondent.
    */
   login(email: string, password: string): Observable<any> {
-    // 🔹 Cas spécial : démo locale
-    if (email.trim().toLowerCase() === 'alice@example.com' && password === 'Password123!') {
-      this.setToken(DEMO_TOKEN);
-      this.userService.setCurrentUser({
-        id: 1,
-        email: 'alice@example.com',
-        nom: 'Dupont',
-        prenom: 'Alice',
-        roles: ['ROLE_USER'],
-      });
-      return of({ token: DEMO_TOKEN, demo: true });
-    }
-
-    // 🔹 Cas normal : login via backend Symfony
+    // ---- Auth via API Symfony
     const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
     return this.http.post<any>(`${this.apiUrl}/login`, { email, password }, { headers }).pipe(
       tap((response) => {
-        if (response && response.token) {
+        if (response?.token) {
           this.setToken(response.token);
+          // Optionnel : pousser l'utilisateur dans UserService si l'API le renvoie.
+          // if (response.user) this.userService.set(response.user);
         }
       })
     );
