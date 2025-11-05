@@ -5,6 +5,7 @@ import { AuthService } from '../../services/auth.service';
 import type { CurrentUser } from '../../services/user.service';
 import { UserService } from '../../services/user.service';
 import AvatarPickerComponent from '../shared/ui/avatar-picker.component';
+
 @Component({
   selector: 'app-profile',
   standalone: true,
@@ -61,8 +62,8 @@ export default class ProfileComponent implements OnInit {
     this.loading.set(true);
     this.error.set(null);
 
-    // ✅ Vérifie simplement la connexion
-    if (!this.auth.hasToken()) {
+    // ✅ Corrigé : vérifie simplement si un token existe
+    if (!this.auth.token) {
       this.loading.set(false);
       this.error.set("Vous n'êtes pas connecté.");
       return;
@@ -104,7 +105,6 @@ export default class ProfileComponent implements OnInit {
     this.showPicker = false;
   }
 
-  // src/app/features/profile/profile.component.ts
   async onPickAvatar(value: string | null): Promise<void> {
     this.loading.set(true);
     this.error.set(null);
@@ -117,9 +117,6 @@ export default class ProfileComponent implements OnInit {
       // Met à jour l'UI locale
       this.userSig.set(this.userService.value);
       this.showPicker = false;
-
-      // ❌ Evite le refresh serveur ici:
-      // await this.userService.loadMe();
     } catch (e) {
       console.error(e);
       this.error.set("Échec de la mise à jour de l'avatar.");

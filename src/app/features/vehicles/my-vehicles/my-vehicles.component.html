@@ -1,0 +1,30 @@
+<div class="wrap">
+  <div class="titlebar">
+    <h1>Mes véhicules</h1>
+    <a class="btn primary" [routerLink]="['/vehicles/new']">Ajouter un véhicule</a>
+  </div>
+
+  <p *ngIf="loading" class="muted">Chargement…</p>
+  <p *ngIf="!loading && error" class="error">{{ error }}</p>
+
+  <ng-container *ngIf="!loading && !error">
+    <p class="muted" *ngIf="items.length === 0">
+      Aucun véhicule enregistré.
+      <a [routerLink]="['/vehicles/new']">Ajouter le premier</a>.
+    </p>
+
+    <div class="list" *ngIf="items.length > 0">
+      <article class="card" *ngFor="let v of items">
+        <div>
+          <div>
+            <strong>{{ displayName(v) }}</strong>
+          </div>
+          <div class="muted">Immatriculation : {{ v.immatriculation || '—' }}</div>
+        </div>
+        <div>
+          <div class="muted">{{ v.places || '—' }} place(s)</div>
+        </div>
+      </article>
+    </div>
+  </ng-container>
+</div>

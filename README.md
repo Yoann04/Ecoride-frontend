@@ -57,3 +57,21 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Démarrer en local
+
+### Backend (Symfony)
+
+```bash
+cd ecoride-backend
+cp .env.example .env.local   # puis éditer DATABASE_URL et JWT_PASSPHRASE
+composer install
+# Si les clés JWT n'existent pas déjà :
+# php bin/console lexik:jwt:generate-keypair
+
+symfony console doctrine:database:create --if-not-exists
+symfony console doctrine:migrations:migrate -n
+
+# Lancer sur 8001 (proxy Angular)
+symfony serve --port=8001
+```

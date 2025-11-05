@@ -1,4 +1,3 @@
-// src/app/features/auth/login/login.component.ts
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -31,22 +30,19 @@ export default class LoginComponent {
     this.errorMessage = '';
     this.loading = true;
 
-    this.auth.login(this.email.trim(), this.password).subscribe({
-      next: async (resp) => {
+    // ✅ la méthode login() du service prend désormais un objet { email, password }
+    this.auth.login({ email: this.email.trim(), password: this.password }).subscribe({
+      next: async () => {
         try {
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/profile';
 
-          // 1) Démo : pas d'appel /api/me
-          if (resp?.demo) {
-            this.router.navigate([returnUrl]);
-            return;
-          }
-
-          // 2) Vrai backend : on charge le profil
+          // ✅ plus de mode "demo"
+          // On recharge directement le profil utilisateur
           await this.userService.loadMe();
-          this.router.navigate([returnUrl]);
+
+          this.router.navigateByUrl(returnUrl);
         } catch {
-          this.errorMessage = 'Connexion ok mais impossible de charger votre profil.';
+          this.errorMessage = 'Connexion réussie mais impossible de charger votre profil.';
         } finally {
           this.loading = false;
         }

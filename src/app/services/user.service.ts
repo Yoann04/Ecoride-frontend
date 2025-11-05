@@ -15,6 +15,7 @@ export interface CurrentUser {
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  private readonly STORAGE_KEY = 'ecoride.me';
   private currentUserSubject = new BehaviorSubject<CurrentUser | null>(null);
   currentUser$ = this.currentUserSubject.asObservable();
 
@@ -28,12 +29,12 @@ export class UserService {
   /** maj + persistance */
   setCurrentUser(user: CurrentUser): void {
     this.currentUserSubject.next(user);
-    localStorage.setItem('current_user', JSON.stringify(user));
+    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(user));
   }
 
   /** restauration au démarrage */
   bootstrapFromStorage(): void {
-    const raw = localStorage.getItem('current_user');
+    const raw = localStorage.getItem(this.STORAGE_KEY);
     if (raw) {
       try {
         this.currentUserSubject.next(JSON.parse(raw));
@@ -46,7 +47,7 @@ export class UserService {
   /** nettoyage */
   clear(): void {
     this.currentUserSubject.next(null);
-    localStorage.removeItem('current_user');
+    localStorage.removeItem(this.STORAGE_KEY);
   }
 
   /** avatar local (pas d’upload backend ici) */
@@ -57,7 +58,7 @@ export class UserService {
     this.setCurrentUser(updated);
   }
 
-  // -------- API (quand pas en mode démo) --------
+  // -------- API --------
 
   async loadMe(): Promise<void> {
     const me = await firstValueFrom(this.http.get<CurrentUser>('/api/me'));
@@ -78,5 +79,10 @@ export class UserService {
     } catch {
       return [];
     }
+  }
+
+  /** helper */
+  isLoggedIn(): boolean {
+    return !!this.value;
   }
 }

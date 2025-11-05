@@ -1,6 +1,24 @@
 <div class="page">
   <main class="search-page">
-    <h1>Covoiturage</h1>
+    <div class="titlebar">
+      <h1>Covoiturage</h1>
+
+      <!-- CTA Proposer un trajet -->
+      <div class="cta-wrap">
+        <ng-container *ngIf="isLoggedIn(); else mustLogin">
+          <a class="btn primary" [routerLink]="['/trips/new']">Proposer un trajet</a>
+        </ng-container>
+        <ng-template #mustLogin>
+          <a
+            class="btn ghost"
+            [routerLink]="['/login']"
+            [queryParams]="{ returnUrl: '/trips/new' }"
+          >
+            Se connecter pour proposer
+          </a>
+        </ng-template>
+      </div>
+    </div>
 
     <!-- Barre de recherche -->
     <form class="search-form" (ngSubmit)="search()">
@@ -70,7 +88,7 @@
 
         <div class="right">
           <div class="seats">{{ t.availableSeats }} place(s) disponible(s)</div>
-          <div class="price">{{ t.price }} €</div>
+          <div class="price">{{ t.price | number : '1.2-2' }} €</div>
           <a class="btn-view" [routerLink]="['/trips', t.id]">Voir</a>
         </div>
       </article>

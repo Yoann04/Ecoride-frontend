@@ -1,0 +1,33 @@
+<div class="wrap">
+  <div class="titlebar">
+    <h1>Mes trajets (conducteur)</h1>
+    <a class="btn primary" [routerLink]="['/trips/new']">Proposer un trajet</a>
+  </div>
+
+  <p *ngIf="loading" class="muted">Chargement…</p>
+  <p *ngIf="!loading && error" class="error">{{ error }}</p>
+
+  <ng-container *ngIf="!loading && !error">
+    <p class="muted" *ngIf="items.length === 0">
+      Vous n’avez pas encore publié de trajet.
+      <a [routerLink]="['/trips/new']">Publier le premier</a>.
+    </p>
+
+    <div class="list" *ngIf="items.length > 0">
+      <article class="card" *ngFor="let t of items">
+        <div>
+          <div>
+            <strong>{{ t.departureCity }}</strong> → <strong>{{ t.arrivalCity }}</strong>
+          </div>
+          <div class="when">Départ : {{ when(t) }}</div>
+        </div>
+        <div>
+          <div class="when">
+            {{ t.availableSeats }} place(s) • {{ t.price | number : '1.2-2' }} €
+          </div>
+          <a class="btn" [routerLink]="['/trips', t.id]">Voir</a>
+        </div>
+      </article>
+    </div>
+  </ng-container>
+</div>

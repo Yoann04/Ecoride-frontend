@@ -1,0 +1,127 @@
+.favorites {
+  padding: 1rem 2rem;
+
+  h2 {
+    font-size: 1.5rem;
+    color: #64a859;
+    margin-bottom: 1rem;
+  }
+
+  .loading,
+  .empty {
+    text-align: center;
+    color: #666;
+    margin-top: 2rem;
+  }
+
+  .favorites-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 1rem;
+
+    .trip-card {
+      background: #f9fbf9;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #64a859;
+        box-shadow: 0 2px 6px rgba(100, 168, 89, 0.2);
+      }
+
+      .cities {
+        font-weight: 600;
+        color: #222;
+      }
+
+      .meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.9rem;
+        color: #555;
+        margin-top: 0.5rem;
+      }
+
+      .seats {
+        margin-top: 0.5rem;
+        color: #64a859;
+        font-weight: 500;
+      }
+
+      .page {
+        max-width: 920px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+      }
+      .titlebar {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        justify-content: space-between;
+      }
+      .ghost {
+        opacity: 0.8;
+        text-decoration: none;
+      }
+      .skeleton {
+        padding: 1rem;
+        background: #f4f4f4;
+        border-radius: 8px;
+      }
+      .muted {
+        color: #666;
+      }
+      .error {
+        color: #c00;
+      }
+
+      .list {
+        display: grid;
+        gap: 12px;
+        margin-top: 1rem;
+      }
+      .trip-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border: 1px solid #eee;
+        border-radius: 12px;
+        .left {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .route {
+          font-size: 1.05rem;
+        }
+        .meta {
+          color: #666;
+          font-size: 0.9rem;
+        }
+        .right {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .price {
+          font-weight: 600;
+        }
+        .btn {
+          padding: 0.5rem 0.8rem;
+          border-radius: 8px;
+          border: 1px solid #ddd;
+          background: #fff;
+          cursor: pointer;
+        }
+        .btn.ghost {
+          background: transparent;
+        }
+      }
+    }
+  }
+}

@@ -3,8 +3,8 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Trip } from '../../models/trip.model';
+import { AuthService } from '../../services/auth.service';
 import { TripSearchFilters, TripService } from '../../services/trip.service';
-
 import FooterComponent from '../shared/footer.component';
 
 @Component({
@@ -27,10 +27,15 @@ export default class TripSearchComponent {
   trips: Trip[] = [];
   total = 0;
 
-  constructor(private tripsApi: TripService) {}
+  constructor(private tripsApi: TripService, private auth: AuthService) {}
 
   async ngOnInit() {
+    // Option : charger des trajets récents au boot
     // await this.search();
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.auth.token; // ou this.auth.hasToken() si tu l'as
   }
 
   async search() {

@@ -1,0 +1,54 @@
+<div class="wrap">
+  <div class="titlebar">
+    <h1>Mes trajets</h1>
+    <a class="btn primary" routerLink="/trips/new">Proposer un trajet</a>
+  </div>
+
+  <div class="tabs">
+    <button class="tab" [class.active]="activeTab() === 'driver'" (click)="setTab('driver')">
+      Proposés
+    </button>
+    <button class="tab" [class.active]="activeTab() === 'favorites'" (click)="setTab('favorites')">
+      Favoris
+    </button>
+  </div>
+
+  <p *ngIf="loading()" class="muted">Chargement…</p>
+  <p *ngIf="!loading() && error()" class="error">{{ error() }}</p>
+
+  <ng-container *ngIf="!loading() && !error()">
+    <div *ngIf="currentList().length === 0" class="empty">
+      <ng-container *ngIf="activeTab() === 'driver'; else noFavs">
+        Vous n’avez pas encore proposé de trajet.
+        <br />
+        <a class="btn" routerLink="/trips/new">Proposer un trajet</a>
+      </ng-container>
+      <ng-template #noFavs>
+        Aucun trajet enregistré en favori.
+        <br />
+        <a class="ghost" routerLink="/trips">Voir les trajets</a>
+      </ng-template>
+    </div>
+
+    <div class="cards" *ngIf="currentList().length > 0">
+      <article class="card" *ngFor="let t of currentList()">
+        <div class="row">
+          <img class="avatar" [src]="avatarUrl(t)" alt="Avatar conducteur" />
+          <div>
+            <div class="driver">{{ driverName(t) }}</div>
+            <div class="meta">{{ t.departureCity }} → {{ t.arrivalCity }} • {{ dateLabel(t) }}</div>
+            <div class="chips">
+              <span class="chip">{{ t.availableSeats }} place(s)</span>
+              <span class="chip" *ngIf="t.isEcological">Éco</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="price">{{ t.price | number : '1.2-2' }} €</div>
+          <a class="btn" [routerLink]="['/trips', t.id]">Voir</a>
+        </div>
+      </article>
+    </div>
+  </ng-container>
+</div>

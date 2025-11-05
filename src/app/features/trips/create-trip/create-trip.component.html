@@ -1,0 +1,95 @@
+<div class="wrap">
+  <div class="titlebar">
+    <h1>Proposer un trajet</h1>
+    <a class="ghost" routerLink="/trips">Retour</a>
+  </div>
+
+  <p class="error" *ngIf="serverError">{{ serverError }}</p>
+  <p class="muted" *ngIf="loading">Chargement…</p>
+
+  <form *ngIf="!loading" class="form" [formGroup]="form" (ngSubmit)="submit()">
+    <div class="grid">
+      <label class="field">
+        <span>Ville de départ</span>
+        <input type="text" formControlName="departureCity" placeholder="Ex. Dijon" />
+        <div class="field-error" *ngIf="f.departureCity.touched && f.departureCity.invalid">
+          <span *ngIf="f.departureCity.errors?.['required']">Requis.</span>
+          <span *ngIf="f.departureCity.errors?.['minlength']">Au moins 2 caractères.</span>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Ville d’arrivée</span>
+        <input type="text" formControlName="arrivalCity" placeholder="Ex. Nice" />
+        <div class="field-error" *ngIf="f.arrivalCity.touched && f.arrivalCity.invalid">
+          <span *ngIf="f.arrivalCity.errors?.['required']">Requis.</span>
+          <span *ngIf="f.arrivalCity.errors?.['minlength']">Au moins 2 caractères.</span>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Date de départ</span>
+        <input type="date" formControlName="departureDate" [min]="todayStr" />
+      </label>
+
+      <label class="field">
+        <span>Heure de départ</span>
+        <input type="time" formControlName="departureTime" />
+      </label>
+
+      <label class="field">
+        <span>Date d’arrivée (optionnel)</span>
+        <input
+          type="date"
+          formControlName="arrivalDate"
+          [min]="f.departureDate.value || todayStr"
+        />
+      </label>
+
+      <label class="field">
+        <span>Heure d’arrivée (optionnel)</span>
+        <input type="time" formControlName="arrivalTime" />
+      </label>
+
+      <label class="field">
+        <span>Prix (€)</span>
+        <input type="number" formControlName="price" min="0" max="9999" step="0.5" />
+        <small class="hint">Ex. 12.5</small>
+        <div class="field-error" *ngIf="f.price.touched && f.price.invalid">
+          <span *ngIf="f.price.errors?.['required']">Requis.</span>
+          <span *ngIf="f.price.errors?.['min']">Valeur minimale : 0.</span>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Places disponibles</span>
+        <input type="number" formControlName="availableSeats" min="1" max="9" />
+      </label>
+
+      <label class="field">
+        <span>Véhicule</span>
+        <select formControlName="vehicle_id">
+          <option *ngFor="let v of vehicles" [value]="v.id">
+            {{ vehicleLabel(v) }}
+          </option>
+        </select>
+      </label>
+
+      <label class="check">
+        <input type="checkbox" formControlName="isEcological" />
+        Trajet écologique
+      </label>
+    </div>
+
+    <div class="field-error" *ngIf="form.errors?.['arrivalBeforeDeparture']">
+      L’heure d’arrivée doit être postérieure à l’heure de départ.
+    </div>
+
+    <div class="actions">
+      <a class="ghost" routerLink="/trips">Annuler</a>
+      <button type="submit" [disabled]="form.invalid || submitting">
+        {{ submitting ? 'Publication…' : 'Publier le trajet' }}
+      </button>
+    </div>
+  </form>
+</div>

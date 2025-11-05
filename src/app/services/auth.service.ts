@@ -1,66 +1,101 @@
-// src/app/services/auth.service.ts
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
-import { tap } from 'rxjs/operators';
-import { UserService } from './user.service';
+import { BehaviorSubject, Observable, map, of, tap } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
-export const TOKEN_KEY = 'jwt_token';
-const DEMO_TOKEN = 'fake-demo-token'; // token factice pour le mode démo
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+}
+
+export interface Me {
+  id: number;
+  email: string;
+  nom: string;
+  prenom: string;
+  roles: string[];
+}
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private apiUrl = '/api';
-  private isLoggedInSubject = new BehaviorSubject<boolean>(this.hasToken());
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
-  constructor(private http: HttpClient, private userService: UserService, private router: Router) {}
+  private static readonly TOKEN_KEY = 'ecoride.jwt';
+  private currentUser$ = new BehaviorSubject<Me | null>(null);
+  private storage: Storage = localStorage;
 
-  // === Gestion du token ===
-  setToken(token: string) {
-    localStorage.setItem(TOKEN_KEY, token);
-    this.isLoggedInSubject.next(true);
+  /** ====== TOKEN ====== */
+  get token(): string | null {
+    return localStorage.getItem(AuthService.TOKEN_KEY);
   }
 
-  getToken(): string | null {
-    return localStorage.getItem(TOKEN_KEY);
+  private setToken(token: string) {
+    localStorage.setItem(AuthService.TOKEN_KEY, token);
   }
 
-  logout(): void {
-    localStorage.removeItem(TOKEN_KEY);
-    this.userService.clear();
-    this.isLoggedInSubject.next(false);
-    this.router.navigate(['/home']);
+  clearToken() {
+    localStorage.removeItem(AuthService.TOKEN_KEY);
+    this.currentUser$.next(null);
   }
 
-  hasToken(): boolean {
-    return !!localStorage.getItem(TOKEN_KEY);
+  /** ====== AUTH FLOWS ====== */
+  login(payload: LoginPayload): Observable<Me> {
+    // POST /api/login -> { token }, puis GET /api/me
+    return this.http.post<LoginResponse>('/api/login', payload).pipe(
+      tap((res) => this.setToken(res.token)),
+      switchMap(() => this.fetchMe()),
+      tap((me) => this.currentUser$.next(me))
+    );
   }
 
-  isLoggedIn(): Observable<boolean> {
-    return this.isLoggedInSubject.asObservable();
+  register(payload: {
+    email: string;
+    password: string;
+    nom: string;
+    prenom: string;
+  }): Observable<Me> {
+    return this.http
+      .post('/api/register', payload)
+      .pipe(switchMap(() => this.login({ email: payload.email, password: payload.password })));
   }
 
-  /** ✅ Vrai si on est en mode démo (token factice) */
-  public isDemo(): boolean {
-    return this.getToken() === DEMO_TOKEN;
+  logout(redirectToLogin = true) {
+    this.clearToken();
+    if (redirectToLogin) this.router.navigate(['/login']);
   }
 
-  // === Authentification ===
-  /**
-   * Login standard : tente l'API.
-   * Si tu veux autoriser un mode démo local sans backend, on court-circuite si email/mdp correspondent.
-   */
-  login(email: string, password: string): Observable<any> {
-    // ---- Auth via API Symfony
-    const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-    return this.http.post<any>(`${this.apiUrl}/login`, { email, password }, { headers }).pipe(
-      tap((response) => {
-        if (response?.token) {
-          this.setToken(response.token);
-          // Optionnel : pousser l'utilisateur dans UserService si l'API le renvoie.
-          // if (response.user) this.userService.set(response.user);
-        }
+  /** ====== ME ====== */
+  fetchMe(): Observable<Me> {
+    // Suppose que l’interceptor attache le Bearer automatiquement sur /api/*
+    if (!this.token) return of(null as any);
+    return this.http.get<Me>('/api/me');
+  }
+
+  /** ====== SELECTORS ====== */
+  me$(): Observable<Me | null> {
+    return this.currentUser$.asObservable();
+  }
+
+  isLoggedIn$(): Observable<boolean> {
+    return this.me$().pipe(map((u) => !!u));
+  }
+
+  /** ====== INIT SESSION (à appeler au bootstrap de l’app) ====== */
+  hydrateSession(): Observable<Me | null> {
+    if (!this.token) {
+      this.currentUser$.next(null);
+      return of(null);
+    }
+    return this.fetchMe().pipe(
+      tap({
+        next: (me) => this.currentUser$.next(me),
+        error: () => this.logout(false),
       })
     );
   }

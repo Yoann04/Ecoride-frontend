@@ -1,0 +1,51 @@
+<div class="wrap">
+  <h1>Ajouter un véhicule</h1>
+
+  <p class="error" *ngIf="serverError">{{ serverError }}</p>
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="form">
+    <div class="grid">
+      <label class="field">
+        <span>Marque</span>
+        <input type="text" formControlName="marque" placeholder="Ex. Tesla" />
+      </label>
+
+      <label class="field">
+        <span>Modèle</span>
+        <input type="text" formControlName="model" placeholder="Ex. Model 3" />
+      </label>
+
+      <label class="field">
+        <span>Immatriculation</span>
+        <input type="text" formControlName="immatriculation" placeholder="AA-123-BB" />
+      </label>
+
+      <label class="field">
+        <span>Places</span>
+        <input type="number" formControlName="places" min="1" max="9" />
+      </label>
+
+      <label class="field">
+        <span>Énergie</span>
+        <select formControlName="energy_type">
+          <option value="ELECTRIC">Électrique</option>
+          <option value="HYBRID">Hybride</option>
+          <option value="THERMAL">Thermique</option>
+          <option value="LPG">GPL</option>
+        </select>
+      </label>
+
+      <label class="field" style="align-self: end">
+        <input type="checkbox" formControlName="is_ecological" />
+        Véhicule écologique
+      </label>
+    </div>
+
+    <div class="actions">
+      <a routerLink="/vehicles" class="ghost">Annuler</a>
+      <button type="submit" [disabled]="form.invalid || submitting">
+        {{ submitting ? 'Enregistrement…' : 'Ajouter le véhicule' }}
+      </button>
+    </div>
+  </form>
+</div>

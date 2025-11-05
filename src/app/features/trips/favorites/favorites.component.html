@@ -1,0 +1,29 @@
+<div class="page">
+  <h1>Mes trajets favoris</h1>
+
+  <p *ngIf="loading">Chargement...</p>
+  <p *ngIf="!loading && error" class="error">{{ error }}</p>
+
+  <section *ngIf="!loading && favorites.length === 0 && !error">
+    <p>Aucun trajet favori pour le moment.</p>
+    <a routerLink="/trips">Découvrir des trajets</a>
+  </section>
+
+  <section class="favorites" *ngIf="favorites.length > 0">
+    <article *ngFor="let t of favorites" class="trip-card">
+      <div class="left">
+        <img class="avatar" [src]="avatarUrl(t)" alt="Avatar conducteur" />
+        <div class="info">
+          <div class="name">{{ fullName(t) }}</div>
+          <div class="route">{{ t.departureCity }} → {{ t.arrivalCity }}</div>
+          <div class="price">{{ t.price | number : '1.2-2' }} €</div>
+        </div>
+      </div>
+
+      <div class="right">
+        <a class="btn" [routerLink]="['/trips', t.id]">Voir</a>
+        <button class="btn danger" (click)="removeFavorite(t)">Retirer</button>
+      </div>
+    </article>
+  </section>
+</div>
