@@ -17,10 +17,10 @@ export class AppComponent implements OnInit {
   constructor(private userService: UserService, private auth: AuthService) {}
 
   ngOnInit() {
-    // 1️⃣ Restaure les infos locales (avatar, pseudo, etc.)
+    // Restaure les infos locales (avatar, pseudo, etc.)
     this.userService.bootstrapFromStorage();
 
-    // 2️⃣ Si un token JWT est présent, recharge le profil `/api/me`
+    // Si un token JWT est présent, recharge le profil /api/me
     this.auth.hydrateSession().subscribe({
       next: (me) => {
         if (me) this.userService.setCurrentUser(me);

@@ -32,19 +32,26 @@ export default class LoginComponent {
     this.loading = true;
 
     try {
-      // 1) Login et stockage du token AVANT d'aller plus loin
+      // Authentifie et stocke le token
       await firstValueFrom(
         this.auth.login({ email: this.email.trim(), password: this.password }).pipe(take(1))
       );
 
-      // 2) Recharger le profil (/api/me) pour remplir l'en-tête et le topbar
+      // Charge le profil (/api/me)
       await this.userService.loadMe();
 
-      // 3) Cible : returnUrl (si présent et sûr) sinon /profile
-      const raw = this.route.snapshot.queryParamMap.get('returnUrl');
-      const target = raw && raw.startsWith('/') ? raw : '/profile';
+      const currentUser = this.userService.value;
+      const isAdminAccount = currentUser?.email === 'yoann@ecoride.com';
 
-      // 4) Navigation immédiate (pas de setTimeout, pas d'attente guard)
+      // Cible : /admin pour le compte admin, sinon returnUrl ou /profile
+      const raw = this.route.snapshot.queryParamMap.get('returnUrl');
+      let target = '/profile';
+      if (isAdminAccount) {
+        target = '/admin';
+      } else if (raw && raw.startsWith('/')) {
+        target = raw;
+      }
+
       await this.router.navigateByUrl(target, { replaceUrl: true });
     } catch (err: any) {
       this.errorMessage =

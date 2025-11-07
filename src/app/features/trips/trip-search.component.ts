@@ -17,12 +17,10 @@ import { CurrentUser, UserService } from '../../services/user.service';
   styleUrls: ['./trip-search.component.scss'],
 })
 export default class TripSearchComponent implements OnInit, OnDestroy {
-  // Form
   origin = '';
   destination = '';
-  date = ''; // YYYY-MM-DD
+  date = '';
 
-  // Sorting / paging
   sort: TripSearchFilters['sort'] = 'departureDate';
   order: TripSearchFilters['order'] = 'ASC';
   page = 1;
@@ -34,7 +32,7 @@ export default class TripSearchComponent implements OnInit, OnDestroy {
   trips: Trip[] = [];
   total = 0;
 
-  // Pour rafraîchir l'image si l'utilisateur change d'avatar
+  // Rafraîchir l'image si l'utilisateur change d'avatar
   private avatarVersion = Date.now();
   private sub?: Subscription;
 
@@ -43,8 +41,6 @@ export default class TripSearchComponent implements OnInit, OnDestroy {
   private users = inject(UserService);
 
   ngOnInit(): void {
-    // Écoute le user courant: si avatar change (image ou retour aux initiales),
-    // on met à jour les items déjà chargés + on “bust” le cache image.
     this.sub = this.users.currentUser$.subscribe((u) => {
       if (!u) return;
       this.patchTripsWithCurrentUser(u);
@@ -77,7 +73,6 @@ export default class TripSearchComponent implements OnInit, OnDestroy {
       this.trips = res.items || [];
       this.total = res.total ?? this.trips.length;
 
-      // Synchronise l’avatar du user courant dans la liste (utile si c’est son trajet)
       const me = this.users.value;
       if (me) this.patchTripsWithCurrentUser(me);
     } catch (e: any) {
@@ -105,13 +100,10 @@ export default class TripSearchComponent implements OnInit, OnDestroy {
   }
 
   /* ===== Avatars ===== */
-
-  /** renvoie true si avatar non vide */
   hasAvatar(t: Trip): boolean {
     return !!(t?.driver?.avatar && t.driver.avatar.trim());
   }
 
-  /** construit l’URL absolue + cache-buster si c’est l’utilisateur courant */
   avatarUrl(t: Trip): string {
     const raw = (t?.driver?.avatar ?? '').trim();
     if (!raw) return '';
@@ -125,7 +117,6 @@ export default class TripSearchComponent implements OnInit, OnDestroy {
     return abs;
   }
 
-  /** initiales fallback (comme ton topbar) */
   driverInitials(t: Trip): string {
     const pseudo = (t.driver?.pseudo ?? '').trim();
     if (pseudo)
@@ -148,10 +139,9 @@ export default class TripSearchComponent implements OnInit, OnDestroy {
     return `${window.location.origin}${normalized}`;
   }
 
-  /** met à jour l’avatar des trajets où le conducteur est l’utilisateur courant */
   private patchTripsWithCurrentUser(u: CurrentUser) {
     if (!u?.id) return;
-    const newAvatar = (u.avatar ?? '').trim(); // peut être '' si “initiales”
+    const newAvatar = (u.avatar ?? '').trim();
     this.trips = this.trips.map((t) =>
       t?.driver?.id === u.id ? { ...t, driver: { ...(t.driver as any), avatar: newAvatar } } : t
     );

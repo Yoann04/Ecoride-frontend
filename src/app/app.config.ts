@@ -8,11 +8,6 @@ import { errorInterceptor } from './interceptors/error.interceptor';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
-    provideHttpClient(
-      withInterceptors([
-        authInterceptor, // gère Bearer + 401/403 => logout + redirect
-        errorInterceptor, // toasts d’erreur pour le reste
-      ])
-    ),
+    provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
   ],
 };

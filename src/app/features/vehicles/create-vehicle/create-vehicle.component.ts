@@ -72,7 +72,7 @@ export default class CreateVehicleComponent {
     model: ['', [Validators.required, Validators.minLength(1)]],
     immatriculation: ['', [Validators.required, Validators.pattern(/^[A-Z0-9\-]{3,15}$/i)]],
     places: [4, [Validators.required, Validators.min(1), Validators.max(9)]],
-    energy_type: ['THERMAL'], // ELECTRIC | HYBRID | THERMAL | LPG...
+    energy_type: ['THERMAL'],
     is_ecological: [false],
   });
 
@@ -84,7 +84,6 @@ export default class CreateVehicleComponent {
     this.serverError = '';
     if (this.form.invalid || this.submitting) return;
 
-    // Soft-guard : si pas de token, on renvoie vers login
     if (!this.auth.token) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/vehicles/new' } });
       return;

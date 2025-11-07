@@ -1,0 +1,43 @@
+<section class="contact">
+  <div class="wrap">
+    <header class="titlebar">
+      <h1>Contacter le conducteur</h1>
+      <a routerLink="/trips" class="back">← Retour</a>
+    </header>
+
+    <div class="card">
+      <div class="driver">
+        <div class="avatar">{{ (driverName || driverEmail || 'C').slice(0, 1).toUpperCase() }}</div>
+        <div class="meta">
+          <div class="name">{{ driverName || 'Conducteur' }}</div>
+          <div class="email">{{ driverEmail || '—' }}</div>
+          <div class="trip" *ngIf="origin && destination">
+            {{ origin }} → {{ destination }} • {{ dateFr }}
+          </div>
+        </div>
+      </div>
+
+      <form (submit)="$event.preventDefault()">
+        <label>
+          <span>Objet</span>
+          <input type="text" [(ngModel)]="subject" name="subject" placeholder="Sujet" />
+        </label>
+
+        <label>
+          <span>Message</span>
+          <textarea
+            rows="7"
+            [(ngModel)]="message"
+            name="message"
+            placeholder="Bonjour, ..."
+          ></textarea>
+        </label>
+
+        <a class="btn primary" [class.disabled]="!canSend" [href]="canSend ? mailtoHref() : null">
+          Envoyer le message
+        </a>
+        <div class="hint">L’envoi s’effectue via votre client e-mail.</div>
+      </form>
+    </div>
+  </div>
+</section>

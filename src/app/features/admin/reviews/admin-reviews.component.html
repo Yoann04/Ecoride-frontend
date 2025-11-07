@@ -1,0 +1,113 @@
+<div class="site-body">
+  <div class="container admin-reviews">
+    <div class="header-bar">
+      <h1 class="page-title">Avis</h1>
+
+      <button type="button" class="back-btn" routerLink="/admin">
+        ← Retour au tableau de bord
+      </button>
+    </div>
+
+    <!-- Filtres -->
+    <div class="toolbar card">
+      <div class="row">
+        <div class="field">
+          <label>Recherche</label>
+          <input type="text" [(ngModel)]="q" placeholder="Texte, auteur, ville…" />
+        </div>
+
+        <div class="field">
+          <label>Statut</label>
+          <select [(ngModel)]="status">
+            <option value="">Tous</option>
+            <option value="published">Publié</option>
+            <option value="pending">En attente</option>
+            <option value="rejected">Refusé</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Note min.</label>
+          <select [(ngModel)]="minRating">
+            <option [ngValue]="0">Toutes</option>
+            <option [ngValue]="1">1 ★</option>
+            <option [ngValue]="2">2 ★</option>
+            <option [ngValue]="3">3 ★</option>
+            <option [ngValue]="4">4 ★</option>
+            <option [ngValue]="5">5 ★</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Trier</label>
+          <select [(ngModel)]="sortPreset">
+            <option value="date_desc">Plus récents → anciens</option>
+            <option value="date_asc">Plus anciens → récents</option>
+            <option value="rating_desc">Meilleure note → pire</option>
+            <option value="rating_asc">Pire note → meilleure</option>
+          </select>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="meta">
+          <div class="count">
+            <strong>{{ filtered.length }}</strong> avis
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste -->
+    <div class="list card" *ngIf="!loading && !error">
+      <div class="row header">
+        <div>Auteur</div>
+        <div>Trajet</div>
+        <div>Note</div>
+        <div>Date</div>
+        <div>Statut</div>
+        <div>Commentaire</div>
+      </div>
+
+      <div class="row item" *ngFor="let r of filtered">
+        <div class="author">
+          <div class="avatar">
+            {{ (r.author?.prenom?.[0] ?? r.author?.email?.[0] ?? '?') | uppercase }}
+          </div>
+          <div class="meta">
+            <div class="name">{{ authorName(r) }}</div>
+            <div class="sub hide-md">{{ r.author?.email }}</div>
+          </div>
+        </div>
+
+        <div>{{ routeLabel(r) }}</div>
+
+        <div class="rating">
+          <span class="num">{{ r.rating.toFixed(1) }}/5</span>
+        </div>
+
+        <div>{{ dateFR(r.createdAt) }}</div>
+
+        <div class="status">
+          <span
+            class="badge"
+            [class.badge-published]="r.status === 'published'"
+            [class.badge-pending]="r.status === 'pending'"
+            [class.badge-rejected]="r.status === 'rejected'"
+          >
+            {{
+              r.status === 'published' ? 'Publié' : r.status === 'pending' ? 'En attente' : 'Refusé'
+            }}
+          </span>
+        </div>
+
+        <div class="comment">“{{ r.comment }}”</div>
+      </div>
+
+      <div class="empty" *ngIf="filtered.length === 0">Aucun avis.</div>
+    </div>
+
+    <div class="card loading" *ngIf="loading">Chargement…</div>
+    <div class="card error" *ngIf="error">{{ error }}</div>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+.admin-trips {
+  .header-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 6px 0 14px;
+  }
+  .page-title {
+    font-size: 28px;
+    font-weight: 800;
+    color: #222;
+    margin: 0;
+  }
+  .back-btn {
+    border: 1px solid #cfe7cf;
+    background: #eaf4ea;
+    color: #2f6e2f;
+    border-radius: 14px;
+    padding: 10px 16px;
+    font-weight: 700;
+    text-decoration: none;
+  }
+
+  .toolbar.card {
+    margin-bottom: 16px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #eef2ee;
+    border-radius: 16px;
+    padding: 18px 20px;
+    box-shadow: 0 4px 18px rgba(100, 168, 89, 0.08);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 2fr 1.6fr 1fr;
+    gap: 16px;
+    align-items: center;
+  }
+  .list .row {
+    grid-template-columns: 2fr 1.4fr 1fr 1fr 0.8fr 0.8fr;
+  }
+
+  .list .row.header {
+    font-weight: 700;
+    color: #1b1b1b;
+    border-bottom: 1px solid #f1f5f1;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+  .list .row.item {
+    padding: 10px 0;
+    border-bottom: 1px solid #f1f5f1;
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+
+  .route .cities {
+    font-weight: 700;
+    color: #222;
+  }
+  .price {
+    font-weight: 800;
+    color: #222;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    input[type='text'],
+    select {
+      padding: 10px 12px;
+      border: 1px solid #e6ece6;
+      border-radius: 10px;
+      outline: none;
+    }
+  }
+
+  .spacer {
+    flex: 1;
+  }
+  .meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .loading,
+  .error,
+  .empty {
+    text-align: center;
+    color: #7a8a7a;
+    font-weight: 600;
+  }
+
+  .hide-sm {
+    @media (max-width: 900px) {
+      display: none;
+    }
+  }
+
+  .list.card,
+  .toolbar.card {
+    box-shadow: 0 4px 18px rgba(100, 168, 89, 0.08);
+  }
+}

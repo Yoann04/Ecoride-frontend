@@ -1,0 +1,76 @@
+<div class="site-body">
+  <div class="container admin-trips">
+    <div class="header-bar">
+      <h1 class="page-title">Trajets</h1>
+      <a routerLink="/admin" class="back-btn">← Retour au tableau de bord</a>
+    </div>
+
+    <!-- Filtres -->
+    <div class="toolbar card">
+      <div class="row">
+        <div class="field">
+          <label>Recherche</label>
+          <input type="text" [(ngModel)]="q" placeholder="Ville de départ ou d'arrivée…" />
+        </div>
+
+        <div class="field">
+          <label>Trier</label>
+          <select [(ngModel)]="sortPreset" (change)="onSortChange()">
+            <optgroup label="Date">
+              <option value="date_desc">Plus récents → anciens</option>
+              <option value="date_asc">Plus anciens → récents</option>
+            </optgroup>
+            <optgroup label="Prix">
+              <option value="price_asc">Moins cher → plus cher</option>
+              <option value="price_desc">Plus cher → moins cher</option>
+            </optgroup>
+            <optgroup label="Places restantes">
+              <option value="seats_desc">Plus de places → moins</option>
+              <option value="seats_asc">Moins de places → plus</option>
+            </optgroup>
+            <optgroup label="Trajet (A→Z)">
+              <option value="route_asc">A → Z</option>
+              <option value="route_desc">Z → A</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="meta">
+          <div class="count">
+            <strong>{{ filtered.length }}</strong> trajet(s)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste -->
+    <div class="list card" *ngIf="!loading && !error">
+      <div class="row header">
+        <div>Trajet</div>
+        <div class="hide-sm">Conducteur</div>
+        <div>Date</div>
+        <div>Heure</div>
+        <div>Places</div>
+        <div>Prix</div>
+      </div>
+
+      <div class="row item" *ngFor="let t of filtered">
+        <div class="route">
+          <span class="cities">{{ t.departureCity }} → {{ t.arrivalCity }}</span>
+        </div>
+        <div class="hide-sm">{{ driverName(t.driver) }}</div>
+        <div>{{ dateFR(t.departureDate) }}</div>
+        <div>{{ timeFR(t.departureTime) }}</div>
+        <div>{{ t.availableSeats ?? 0 }}</div>
+        <div class="price">{{ priceLabel(t.price) }}</div>
+      </div>
+
+      <div class="empty" *ngIf="filtered.length === 0">Aucun trajet.</div>
+    </div>
+
+    <div class="card error" *ngIf="error">{{ error }}</div>
+    <div class="card loading" *ngIf="loading">Chargement…</div>
+  </div>
+</div>

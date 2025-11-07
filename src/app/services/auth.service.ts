@@ -44,7 +44,6 @@ export class AuthService {
     this.currentUser$.next(null);
   }
 
-  /** ====== AUTH FLOWS ====== */
   login(payload: LoginPayload): Observable<Me> {
     // POST /api/login -> { token }, puis GET /api/me
     return this.http.post<LoginResponse>('/api/login', payload).pipe(
@@ -70,14 +69,11 @@ export class AuthService {
     if (redirectToLogin) this.router.navigate(['/login']);
   }
 
-  /** ====== ME ====== */
   fetchMe(): Observable<Me> {
-    // Suppose que l’interceptor attache le Bearer automatiquement sur /api/*
     if (!this.token) return of(null as any);
     return this.http.get<Me>('/api/me');
   }
 
-  /** ====== SELECTORS ====== */
   me$(): Observable<Me | null> {
     return this.currentUser$.asObservable();
   }
@@ -86,7 +82,6 @@ export class AuthService {
     return this.me$().pipe(map((u) => !!u));
   }
 
-  /** ====== INIT SESSION (à appeler au bootstrap de l’app) ====== */
   hydrateSession(): Observable<Me | null> {
     if (!this.token) {
       this.currentUser$.next(null);

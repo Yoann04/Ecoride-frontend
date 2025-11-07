@@ -17,9 +17,9 @@ import type { CurrentUser } from '../../services/user.service';
 import { UserService } from '../../services/user.service';
 
 import type { Vehicle } from '../../models/trip.model';
+import { TripService } from '../../services/trip.service';
 import { VehicleService } from '../../services/vehicle.service';
 
-// Composant modal d’avatar
 import AvatarPickerComponent from '../shared/ui/avatar-picker.component';
 
 @Component({
@@ -33,13 +33,12 @@ export default class ProfileComponent implements OnInit, OnDestroy {
   private readonly userService = inject(UserService);
   private readonly auth = inject(AuthService);
   private readonly vehiclesApi = inject(VehicleService);
+  private readonly trips = inject(TripService);
   private readonly cdr = inject(ChangeDetectorRef);
 
-  /** === UI === */
   showPicker = false;
   activeTab: 'infos' | 'trips' | 'favorites' = 'infos';
 
-  /** === State === */
   userSig = signal<CurrentUser | null>(null);
   loading = signal(false);
   error = signal<string | null>(null);
@@ -48,11 +47,10 @@ export default class ProfileComponent implements OnInit, OnDestroy {
   tripsFavorites = signal<any[]>([]);
   vehiclesSig = signal<Vehicle[]>([]);
 
-  /** Anti-cache avatar */
   avatarV = signal<number>(Date.now());
   private sub = new Subscription();
 
-  /** 👉 date fictive si backend ne renvoie rien */
+  /** Date fictive si backend ne renvoie rien */
   private readonly DEFAULT_CREATED_AT = '2025-11-04T12:00:00Z';
 
   constructor() {
@@ -62,7 +60,6 @@ export default class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  // ==== Affichages dérivés ====
   displayName = computed(() => {
     const u = this.userSig();
     if (!u) return '';
@@ -77,7 +74,7 @@ export default class ProfileComponent implements OnInit, OnDestroy {
   });
 
   async ngOnInit() {
-    // Rafraîchissement avatar (anti-cache)
+    // Rafraîchissement avatar
     this.sub.add(
       this.userService.avatarRefresh$.subscribe((v) => {
         this.avatarV.set(v);
@@ -85,10 +82,8 @@ export default class ProfileComponent implements OnInit, OnDestroy {
       })
     );
 
-    // 🔁 Rafraîchissement des favoris (AJOUT/SUPPRESSION depuis ailleurs)
     this.sub.add(
       this.userService.favoritesRefresh$.subscribe(() => {
-        // Recharge uniquement la liste des favoris (rapide)
         this.reloadFavorites();
       })
     );
@@ -103,12 +98,10 @@ export default class ProfileComponent implements OnInit, OnDestroy {
     this.sub.unsubscribe();
   }
 
-  // ==== Actions ====
   private ensureCreatedAt() {
     const u = this.userSig();
     if (!u) return;
     if (!u.createdAt || String(u.createdAt).trim() === '') {
-      // on force une date fictive
       const patched: CurrentUser = { ...u, createdAt: this.DEFAULT_CREATED_AT };
       this.userService.setCurrentUser(patched);
       this.userSig.set(patched);
@@ -129,10 +122,10 @@ export default class ProfileComponent implements OnInit, OnDestroy {
       await this.userService.loadMe();
       this.userSig.set(this.userService.value);
 
-      // ✅ s'assure qu'on a une date à afficher
+      // S'assure d'afficher une date
       this.ensureCreatedAt();
 
-      // véhicules (non bloquant)
+      // véhicules
       try {
         const list = await this.vehiclesApi.getMy();
         this.vehiclesSig.set(list || []);
@@ -147,24 +140,35 @@ export default class ProfileComponent implements OnInit, OnDestroy {
   }
 
   private async loadTripsBestEffort() {
-    const [byDriver, favorites] = await Promise.allSettled([
-      this.userService.getTripsByDriver?.() ?? Promise.resolve([]),
-      this.userService.getFavoriteTrips?.() ?? Promise.resolve([]),
-    ]);
-    if (byDriver.status === 'fulfilled') this.tripsDriver.set(byDriver.value as any[]);
-    if (favorites.status === 'fulfilled') this.tripsFavorites.set(favorites.value as any[]);
+    try {
+      const mine = await this.trips.byDriver();
+      this.tripsDriver.set(mine || []);
+      if (!mine || mine.length === 0) {
+        const me = this.userSig();
+        console.log('[profil] Aucun trajet pour le driver connecté', {
+          userId: me?.id,
+          email: me?.email,
+        });
+      }
+    } catch (e) {
+      console.error('[profil] byDriver a échoué', e);
+      this.tripsDriver.set([]);
+    }
+
+    try {
+      const favs = await this.userService.getFavoriteTrips();
+      this.tripsFavorites.set(favs || []);
+    } catch {
+      this.tripsFavorites.set([]);
+    }
   }
 
-  /** 🔁 Recharge ciblé des favoris (appelé quand favoritesRefresh$ émet) */
   private async reloadFavorites() {
     try {
       const favs = await this.userService.getFavoriteTrips();
       this.tripsFavorites.set(favs || []);
-      // si l’utilisateur est sur l’onglet “favorites”, l’UI se met à jour direct
       this.cdr.markForCheck();
-    } catch {
-      // on ne casse pas l’UI si l’appel échoue ponctuellement
-    }
+    } catch {}
   }
 
   setTab(tab: 'infos' | 'trips' | 'favorites') {
@@ -191,7 +195,6 @@ export default class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Utils d'affichage
   tripOrigin(t: any): string {
     return t?.origin ?? t?.departureCity ?? t?.depart ?? '—';
   }
@@ -215,15 +218,16 @@ export default class ProfileComponent implements OnInit, OnDestroy {
     if (r.includes('DRIVER') || role.toLowerCase() === 'driver') return 'Conducteur';
     return r.replace(/^ROLE_/, '').toLowerCase();
   }
-  vehicleLabel(v?: Vehicle | null): string {
+
+  vehicleLabel(v?: any): string {
     if (!v) return '';
-    const brand = (v.brand?.libelle || v.brand?.marque || v.marque || '').trim();
-    const model = (v.model ?? v.modele ?? '').trim();
-    const head = brand || 'Véhicule';
+    const brand =
+      typeof v.brand === 'string' ? v.brand : v.brand?.libelle ?? v.brand?.marque ?? v.marque ?? '';
+    const model = v.model ?? v.modele ?? '';
+    const head = (brand || 'Véhicule').trim();
     return model ? `${head} ${model}` : head;
   }
 
-  /** URL avatar + anti-cache */
   avatarUrl(u?: CurrentUser | null): string {
     const src = (u?.avatar ?? '').trim();
     const url = this.makeAbsolute(src) || '/assets/illustrations/Avatar2.png';

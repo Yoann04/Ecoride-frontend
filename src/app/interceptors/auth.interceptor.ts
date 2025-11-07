@@ -1,4 +1,3 @@
-// src/app/interceptors/auth.interceptor.ts
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -20,7 +19,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((err) => {
-      // ➜ On ne « casse » la session que si la requête portait un Bearer
       if (hadAuthHeader && (err?.status === 401 || err?.status === 403)) {
         auth.clearToken();
         const returnUrl = router.url || '/';

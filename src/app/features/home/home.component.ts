@@ -7,7 +7,7 @@ import { AuthService } from '../../services/auth.service';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule /* , TopbarComponent */],
+  imports: [CommonModule],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
@@ -15,7 +15,6 @@ export default class HomeComponent {
   data: any;
   currentYear = new Date().getFullYear();
 
-  // ✅ Chargement garanti de l’image (import.meta.url)
   heroUrl = new URL('../../../assets/illustrations/hero-ecoride.png', import.meta.url).toString();
 
   constructor(private auth: AuthService, private router: Router, private http: HttpClient) {}

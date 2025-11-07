@@ -7,8 +7,8 @@ import { Router, RouterLink } from '@angular/router';
   selector: 'app-forgot-password',
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './forgot-password.component.html', // <- ici
-  styleUrls: ['./forgot-password.component.scss'], // <- et ici
+  templateUrl: './forgot-password.component.html',
+  styleUrls: ['./forgot-password.component.scss'],
 })
 export default class ForgotPasswordComponent {
   email = '';
@@ -22,7 +22,7 @@ export default class ForgotPasswordComponent {
     this.loading = true;
     this.errorMessage = '';
     try {
-      await new Promise<void>((res) => setTimeout(res, 600)); // simulation
+      await new Promise<void>((res) => setTimeout(res, 600));
       this.done = true;
     } catch {
       this.errorMessage = 'Une erreur est survenue.';

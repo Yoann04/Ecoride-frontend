@@ -58,15 +58,12 @@
   }
 }
 
-/* Réserve une hauteur fixe pour les petits textes sous les champs,
-   afin que "Prix (€)" (qui a "Ex. 12.5") n'étire pas la cellule seule */
 .hint {
   display: block;
-  min-height: 18px; /* ~ la hauteur de "Ex. 12.5" */
+  min-height: 18px;
   line-height: 18px;
 }
 
-/* Regrouper visuellement les blocs */
 .field:nth-child(7),
 .field:nth-child(8),
 .field:nth-child(9) {

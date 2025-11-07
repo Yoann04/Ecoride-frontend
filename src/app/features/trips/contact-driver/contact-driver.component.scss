@@ -1,0 +1,124 @@
+.contact {
+  min-height: calc(100dvh - 72px);
+  background: radial-gradient(900px 500px at 120% -10%, rgba(100, 168, 89, 0.08), transparent 60%),
+    radial-gradient(700px 400px at -10% 110%, rgba(100, 168, 89, 0.06), transparent 60%), #fff;
+}
+.wrap {
+  width: min(860px, 92vw);
+  margin: 0 auto;
+  padding: 28px 0 64px;
+}
+
+.titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.titlebar h1 {
+  margin: 0;
+  color: #2c6e2c;
+  font: 800 32px/1.1 'Poppins', system-ui, sans-serif;
+}
+.back {
+  color: #2b7a2b;
+  text-decoration: none;
+}
+
+.card {
+  border: 1px solid #edf3ed;
+  border-radius: 18px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+}
+
+.driver {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #e9f4ea;
+  display: grid;
+  place-items: center;
+  font: 800 18px/1 'Poppins', system-ui, sans-serif;
+  color: #1f2937;
+  border: 3px solid #fff;
+  box-shadow: 0 8px 22px rgba(100, 168, 89, 0.18), inset 0 0 0 1px #dfe8e0;
+}
+.meta .name {
+  font: 700 16px/1.2 'Poppins', system-ui;
+  color: #1f2937;
+}
+.meta .email,
+.meta .trip {
+  color: #4b5563;
+}
+
+form {
+  display: grid;
+  gap: 12px;
+  margin-top: 10px;
+}
+label span {
+  display: block;
+  font-weight: 600;
+  color: #2b7a2b;
+  margin-bottom: 6px;
+}
+input,
+textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e0e4e0;
+  background: #f9fbf9;
+  font: 500 14px/1.4 system-ui, sans-serif;
+  outline: none;
+}
+input:focus,
+textarea:focus {
+  border-color: #64a859;
+  background: #fff;
+}
+
+.btn.primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 14px;
+  background: #64a859;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 12px rgba(100, 168, 89, 0.25);
+  transition: 0.2s ease;
+}
+.btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(79, 139, 71, 0.35);
+}
+.btn.primary.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+  box-shadow: none;
+}
+
+.hint {
+  margin-top: 6px;
+  color: #6b7280;
+  font-size: 12px;
+}
+@media (max-width: 520px) {
+  .titlebar h1 {
+    font-size: 26px;
+  }
+}

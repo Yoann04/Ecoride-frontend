@@ -1,0 +1,121 @@
+<div class="site-body">
+  <div class="container admin-users">
+    <div class="header-bar">
+      <h1 class="page-title">Utilisateurs</h1>
+
+      <button type="button" routerLink="/admin" class="back-btn">
+        ← Retour au tableau de bord
+      </button>
+    </div>
+
+    <div class="toolbar card">
+      <div class="row">
+        <div class="field">
+          <label>Recherche</label>
+          <input
+            type="text"
+            [(ngModel)]="q"
+            (ngModelChange)="page = 1"
+            placeholder="Nom ou email…"
+          />
+        </div>
+
+        <div class="field">
+          <label>Rôle</label>
+          <select [(ngModel)]="roleFilter" (change)="page = 1">
+            <option value="">Tous</option>
+            <option value="ROLE_USER">Utilisateur</option>
+            <option value="ROLE_DRIVER">Conducteur</option>
+            <option value="ROLE_ADMIN">Admin</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Trier</label>
+          <select [(ngModel)]="sortPreset" (change)="onSortChange()">
+            <optgroup label="Création">
+              <option value="created_desc">Plus récents → anciens</option>
+              <option value="created_asc">Plus anciens → récents</option>
+            </optgroup>
+            <optgroup label="Nom">
+              <option value="name_asc">A → Z</option>
+              <option value="name_desc">Z → A</option>
+            </optgroup>
+            <optgroup label="Email">
+              <option value="email_asc">A → Z</option>
+              <option value="email_desc">Z → A</option>
+            </optgroup>
+            <optgroup label="Rôle">
+              <option value="role_asc">A → Z</option>
+              <option value="role_desc">Z → A</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <div class="spacer"></div>
+
+        <div class="meta">
+          <div class="count">
+            <strong>{{ total }}</strong> résultat(s)
+          </div>
+          <div class="pager">
+            <button
+              type="button"
+              class="nav-btn"
+              (click)="prev()"
+              [disabled]="page === 1"
+              aria-label="Page précédente"
+            >
+              ←
+            </button>
+            <span class="page-label">Page {{ page }}</span>
+            <button
+              type="button"
+              class="nav-btn"
+              (click)="next()"
+              [disabled]="page * pageSize >= total"
+              aria-label="Page suivante"
+            >
+              →
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Liste -->
+    <div class="list card" *ngIf="!loading && !error">
+      <div class="row header">
+        <div>Utilisateur</div>
+        <div class="hide-sm">Email</div>
+        <div>Rôles</div>
+        <div class="hide-sm">Créé le</div>
+      </div>
+
+      <div class="row item" *ngFor="let u of paged">
+        <div class="author">
+          <span class="avatar">{{ initials(u) }}</span>
+          <div class="meta">
+            <div class="name">{{ displayName(u) }}</div>
+            <div class="sub hide-md">{{ u.email }}</div>
+          </div>
+        </div>
+
+        <div class="hide-sm ellipsis">{{ u.email }}</div>
+
+        <div class="status">
+          <span class="badge" *ngFor="let r of u.roles" [class.badge-admin]="r === 'ROLE_ADMIN'">
+            {{ prettyRole(r) }}
+          </span>
+        </div>
+
+        <div class="hide-sm">{{ dateFR(u.createdAt) }}</div>
+      </div>
+
+      <div class="empty" *ngIf="total === 0">Aucun utilisateur ne correspond.</div>
+    </div>
+
+    <div class="card error" *ngIf="error">{{ error }}</div>
+    <div class="card loading" *ngIf="loading">Chargement…</div>
+  </div>
+</div>

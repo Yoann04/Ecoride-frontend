@@ -5,7 +5,7 @@
 }
 .topbar .nav-link.active {
   color: #64a859;
-} /* ✅ seul le lien actif devient vert */
+}
 
 .topbar {
   position: sticky;
@@ -14,14 +14,13 @@
   background: #f3f4f3;
   border-bottom: 1px solid #e0e2e0;
 }
-/* Taille sûre du logo dans le header */
+
 .topbar .brand .logo {
-  height: 56px; /* ajuste 48–64px selon ton goût */
+  height: 56px;
   width: auto;
   object-fit: contain;
 }
 
-/* Ceinture + bretelles au cas où un style global ferait width:100% sur les images */
 .topbar .brand img {
   max-height: 56px;
   width: auto !important;
@@ -41,20 +40,19 @@
   text-decoration: none;
 }
 .menu a.active {
-  color: #2b7a2b; /* vert EcoRide */
+  color: #2b7a2b;
   background: #f2fbf2;
   padding: 6px 10px;
   border-radius: 10px;
   font-weight: 700;
 }
-/* Groupe gauche : logo + menu */
+
 .left-group {
   display: flex;
   align-items: center;
-  gap: 24px; /* espace entre EcoRide et “Mon profil” */
+  gap: 24px;
 }
 
-/* Zone droite (user + bouton) inchangée */
 .right {
   display: flex;
   align-items: center;
@@ -84,7 +82,6 @@
   display: block;
 }
 
-/* Avatar initiales dans le header */
 .avatar {
   width: 34px;
   height: 34px;
@@ -108,10 +105,10 @@
   cursor: pointer;
 }
 .brand .logo {
-  height: 60px; /* force une hauteur visible */
-  width: auto; /* garde les proportions */
-  display: block; /* évite les “inline gaps” */
-  object-fit: contain; /* safe */
+  height: 60px;
+  width: auto;
+  display: block;
+  object-fit: contain;
 }
 .brand .wordmark {
   font-family: 'Poppins', sans-serif;
@@ -178,7 +175,7 @@
     filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.08));
   }
 }
-/* Burger (mobile) */
+
 .burger {
   display: none;
   flex-direction: column;
@@ -199,7 +196,6 @@
   margin: 3px 0;
 }
 
-/* Mobile */
 @media (max-width: 900px) {
   .burger {
     display: flex;

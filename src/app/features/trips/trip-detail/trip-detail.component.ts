@@ -34,6 +34,8 @@ export class TripDetailComponent implements OnInit, OnDestroy {
   reserveBusy = false;
 
   Math = Math;
+  driverAvg = 0;
+  driverCount = 0;
 
   ngOnInit() {
     this.sub = this.userService.avatarRefresh$.subscribe((v) => {
@@ -51,13 +53,18 @@ export class TripDetailComponent implements OnInit, OnDestroy {
     try {
       const id = Number(this.route.snapshot.paramMap.get('id'));
       if (!id) throw new Error('ID invalide');
+
       this.trip = await this.trips.getOne(id);
 
+      await this.loadDriverStats();
+
+      // Favoris
       try {
         const fav = await this.trips.isFavorite(id);
         if (this.trip) this.trip = { ...this.trip, isFavorite: fav };
       } catch {}
 
+      // Places restantes
       try {
         const status = await this.trips.getTripStatus(id);
         if (this.trip) {
@@ -74,6 +81,40 @@ export class TripDetailComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  /** Calcule la note et le nombre d’avis du conducteur */
+  private async loadDriverStats() {
+    const reviews: any[] = (this.trip as any)?.reviews ?? [];
+    if (reviews.length > 0) {
+      const total = reviews.reduce((acc, r) => acc + (Number(r?.rating) || 0), 0);
+      this.driverCount = reviews.length;
+      this.driverAvg = Math.round((total / this.driverCount) * 10) / 10;
+      return;
+    }
+
+    const driverId = (this.trip as any)?.driver?.id;
+    if (!driverId) {
+      this.driverAvg = 0;
+      this.driverCount = 0;
+      return;
+    }
+    try {
+      const s = await this.trips.getDriverSummary(driverId);
+      this.driverAvg = Number(s?.avg ?? 0);
+      this.driverCount = Number(s?.count ?? 0);
+    } catch {
+      this.driverAvg = 0;
+      this.driverCount = 0;
+    }
+  }
+
+  toDateFR(dateStr?: string): string {
+    if (!dateStr) return '—';
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dateStr);
+    if (!m) return dateStr;
+    const d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return d.toLocaleDateString('fr-FR');
   }
 
   private makeAbsolute(url?: string | null): string {
@@ -106,8 +147,8 @@ export class TripDetailComponent implements OnInit, OnDestroy {
     return (p + n || fb).toUpperCase();
   }
 
-  onAvatarError(ev: Event): void {
-    const img = ev.target as HTMLImageElement;
+  onAvatarError(event: Event): void {
+    const img = event.target as HTMLImageElement;
     if (img) img.style.display = 'none';
   }
 
@@ -126,17 +167,7 @@ export class TripDetailComponent implements OnInit, OnDestroy {
     const type = String(v.energy_type || v.energyType || '').toLowerCase();
     if (type.includes('electric') || type.includes('électrique')) return true;
     const label = `${this.brandLabel()} ${v.energy_type || ''}`.toLowerCase();
-    const electricHints = [
-      'tesla',
-      'model',
-      'ev',
-      'bev',
-      'electric',
-      'électrique',
-      'y long range',
-      'y performance',
-    ];
-    return electricHints.some((k) => label.includes(k));
+    return ['tesla', 'model', 'ev', 'bev', 'electric', 'électrique'].some((k) => label.includes(k));
   }
 
   isFav(): boolean {
@@ -152,17 +183,6 @@ export class TripDetailComponent implements OnInit, OnDestroy {
       : dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
   }
 
-  reviewsCount(): number {
-    return this.trip?.reviews?.length ?? 0;
-  }
-
-  averageRating(): number {
-    const reviews = this.trip?.reviews ?? [];
-    if (!reviews.length) return 0;
-    const total = reviews.reduce((acc, r) => acc + (r.rating ?? 0), 0);
-    return Math.round((total / reviews.length) * 10) / 10;
-  }
-
   async toggleFavorite() {
     if (!this.trip) return;
     if (!this.isLoggedIn()) return this.goLogin();
@@ -170,15 +190,11 @@ export class TripDetailComponent implements OnInit, OnDestroy {
 
     this.favBusy = true;
     const prev = !!this.trip.isFavorite;
-    this.trip = { ...this.trip, isFavorite: !prev }; // UI optimiste
+    this.trip = { ...this.trip, isFavorite: !prev };
 
     try {
-      if (prev) {
-        await this.trips.removeFavorite(this.trip.id);
-      } else {
-        await this.trips.addFavorite(this.trip.id);
-      }
-      // ✅ notifie le reste de l’app (profil, liste favoris)
+      if (prev) await this.trips.removeFavorite(this.trip.id);
+      else await this.trips.addFavorite(this.trip.id);
       this.userService.notifyFavoritesChanged();
     } catch {
       this.trip = { ...this.trip, isFavorite: prev };

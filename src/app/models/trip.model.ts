@@ -1,4 +1,3 @@
-// src/app/models/trip.model.ts
 export interface UserMini {
   id: number;
   prenom?: string;
@@ -29,7 +28,7 @@ export interface Vehicle {
 export interface Review {
   id: number;
   comment: string;
-  rating: number; // 1..5
+  rating: number;
   status?: string;
   user?: UserMini;
 }
@@ -51,7 +50,6 @@ export interface Trip {
   reviews?: Review[];
 
   isFavorite?: boolean;
-  /** ✅ état local pour l’UI réservation */
   reserved?: boolean;
 }
 

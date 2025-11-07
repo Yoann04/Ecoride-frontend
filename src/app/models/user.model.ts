@@ -3,5 +3,5 @@ export interface UserMini {
   Nom?: string;
   prenom?: string;
   pseudo?: string;
-  avatar?: string | null; // URL
+  avatar?: string | null;
 }

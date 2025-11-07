@@ -23,7 +23,6 @@ export class UserService {
   private avatarRefreshSubject = new BehaviorSubject<number>(Date.now());
   avatarRefresh$ = this.avatarRefreshSubject.asObservable();
 
-  // ✅ notif globale quand un favori change (ajout/suppression)
   private favoritesRefreshSubject = new BehaviorSubject<number>(Date.now());
   favoritesRefresh$ = this.favoritesRefreshSubject.asObservable();
 
@@ -60,7 +59,6 @@ export class UserService {
     this.avatarRefreshSubject.next(Date.now());
   }
 
-  // ✅ à appeler après add/remove favori
   notifyFavoritesChanged(): void {
     this.favoritesRefreshSubject.next(Date.now());
   }

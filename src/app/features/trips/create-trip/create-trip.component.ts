@@ -132,8 +132,8 @@ export default class CreateTripComponent {
       departureCity: ['', [Validators.required, Validators.minLength(2)]],
       arrivalCity: ['', [Validators.required, Validators.minLength(2)]],
 
-      departureDate: [this.today(), [Validators.required]], // YYYY-MM-DD
-      departureTime: [this.nextQuarterHour(), [Validators.required]], // HH:mm
+      departureDate: [this.today(), [Validators.required]],
+      departureTime: [this.nextQuarterHour(), [Validators.required]],
 
       arrivalDate: [''],
       arrivalTime: [''],
@@ -164,7 +164,7 @@ export default class CreateTripComponent {
 
   private static toDate(dateStr: string, timeStr: string): Date | null {
     try {
-      const t = timeStr.length === 5 ? `${timeStr}:00` : timeStr; // HH:mm → HH:mm:ss
+      const t = timeStr.length === 5 ? `${timeStr}:00` : timeStr;
       const d = new Date(`${dateStr}T${t}`);
       return isNaN(d.getTime()) ? null : d;
     } catch {
@@ -204,7 +204,6 @@ export default class CreateTripComponent {
     try {
       const v = this.form.getRawValue();
 
-      // — Normalisations / mapping backend —
       const priceNum = Number(
         String(v.price ?? 0)
           .toString()
@@ -219,15 +218,15 @@ export default class CreateTripComponent {
         : null;
 
       const payload = {
-        origin: (v.departureCity || '').trim(), // <— clé backend
-        destination: (v.arrivalCity || '').trim(), // <— clé backend
-        departureDate: String(v.departureDate), // YYYY-MM-DD
-        departureTime: String(timeDep), // HH:mm:ss
+        origin: (v.departureCity || '').trim(),
+        destination: (v.arrivalCity || '').trim(),
+        departureDate: String(v.departureDate),
+        departureTime: String(timeDep),
         arrivalDate: v.arrivalDate ? String(v.arrivalDate) : null,
         arrivalTime: timeArr,
         price: priceNum,
         availableSeats: Number(v.availableSeats ?? 1),
-        eco: !!v.isEcological, // <— clé backend
+        eco: !!v.isEcological,
         vehicle_id: Number(v.vehicle_id),
       };
 
@@ -241,7 +240,7 @@ export default class CreateTripComponent {
     }
   }
 
-  // Helpers dates / heures
+  // Dates / heures
   private today(): string {
     const d = new Date();
     const m = `${d.getMonth() + 1}`.padStart(2, '0');

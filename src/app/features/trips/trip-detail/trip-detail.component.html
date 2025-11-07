@@ -5,7 +5,7 @@
     <section class="card">
       <header class="header">
         <div class="driver-info">
-          <!-- Avatar / Initiales (même logique que search & topbar) -->
+          <!-- Avatar / Initiales du conducteur -->
           <ng-container *ngIf="t?.driver as d">
             <div class="avatar-wrapper" *ngIf="avatarUrl(d); else initialsTpl">
               <img
@@ -19,28 +19,32 @@
             </ng-template>
           </ng-container>
 
+          <!-- Infos conducteur -->
           <div class="driver">
             <div class="name">{{ t.driver?.prenom || 'Conducteur' }}</div>
             <span class="date">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
                 <path fill="currentColor" d="M7 2h2v2h6V2h2v2h3v16H4V4h3V2Zm12 6H5v10h14V8Z" />
               </svg>
-              {{ t.departureDate }} • {{ toTime(t.departureDate, t.departureTime) }}
+              {{ toDateFR(t.departureDate) }} •
+              {{ toTime(t.departureDate, t.departureTime) }}
             </span>
           </div>
         </div>
 
+        <!-- Prix -->
         <div class="price-block">
           <div class="price">{{ t.price ?? 0 | number : '1.2-2' }} €</div>
           <div class="seats">
-            {{ t.availableSeats ?? 0 }} place{{
+            {{ t.availableSeats ?? 0 }}
+            place{{ (t.availableSeats ?? 0) > 1 ? 's' : '' }} disponible{{
               (t.availableSeats ?? 0) > 1 ? 's' : ''
             }}
-            disponible{{ (t.availableSeats ?? 0) > 1 ? 's' : '' }}
           </div>
         </div>
       </header>
 
+      <!-- Détails du trajet -->
       <div class="route">
         <div class="kv">
           <div class="k">Départ :</div>
@@ -54,6 +58,7 @@
 
       <hr class="sep" />
 
+      <!-- Informations et avis -->
       <div class="cols">
         <div class="col">
           <h4>Informations supplémentaires</h4>
@@ -75,11 +80,27 @@
           <h4>Avis sur le conducteur</h4>
           <div class="stars">
             <span class="star" *ngFor="let s of [1, 2, 3, 4, 5]; let i = index">
-              {{ i < Math.round(averageRating()) ? '★' : '☆' }}
+              {{ i < Math.round(driverAvg) ? '★' : '☆' }}
             </span>
           </div>
-          <div class="avg">{{ averageRating() }} / 5 ({{ reviewsCount() }} avis)</div>
-          <a class="contact" href="#">Contacter le conducteur</a>
+          <div class="avg">
+            {{ driverAvg || 0 | number : '1.1-1' }} / 5 ({{ driverCount }} avis)
+          </div>
+          <a
+            class="link"
+            [routerLink]="['/drivers', trip?.driver?.id, 'contact']"
+            [queryParams]="{
+              name: trip?.driver?.prenom
+                ? trip?.driver?.prenom + ' ' + (trip?.driver?.nom || '')
+                : '',
+              email: trip?.driver?.email || '',
+              origin: trip?.departureCity || '',
+              destination: trip?.arrivalCity || '',
+              date: trip?.departureDate || ''
+            }"
+          >
+            Contacter le conducteur
+          </a>
         </div>
       </div>
 
@@ -109,6 +130,7 @@
     </section>
   </main>
 
+  <!-- Chargement/erreur -->
   <p *ngIf="loading">Chargement…</p>
   <p *ngIf="!loading && error" class="error">{{ error }}</p>
 </div>
@@ -124,7 +146,9 @@
       <ul>
         <li>12 rue du Colibris, 75010 Paris, France</li>
         <li>06 12 34 56 78</li>
-        <li><a href="mailto:contact@ecoride.com">contact@ecoride.com</a></li>
+        <li>
+          <a href="mailto:contact@ecoride.com">contact@ecoride.com</a>
+        </li>
         <li>L’équipe EcoRide vous répond sous 24h</li>
       </ul>
     </div>

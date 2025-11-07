@@ -17,7 +17,6 @@ import { Component, EventEmitter, HostListener, Input, Output, signal } from '@a
       <h3>Choisir un avatar</h3>
 
       <div class="grid">
-        <!-- ✅ Tuile “Initiales dynamiques” -->
         <button type="button" class="avatar-item" (click)="onPick(null)">
           <div class="inner initials">
             <span class="letters">{{ initialsText }}</span>
@@ -45,7 +44,7 @@ import { Component, EventEmitter, HostListener, Input, Output, signal } from '@a
   `,
 })
 export default class AvatarPickerComponent {
-  /** Liste d’avatars (par défaut) */
+  /** Liste d’avatars */
   @Input() avatars: string[] = [
     'assets/illustrations/Avatar1.png',
     'assets/illustrations/Avatar2.png',
@@ -56,14 +55,11 @@ export default class AvatarPickerComponent {
     'assets/illustrations/Avatar7.png',
   ];
 
-  /** ✅ Les initiales dynamiques passées par le parent */
   @Input() initialsText: string = 'IN';
 
-  /** Événements */
   @Output() pick = new EventEmitter<string | null>();
   @Output() cancel = new EventEmitter<void>();
 
-  /** Cache des images cassées -> on masque la tuile */
   broken = signal<Set<number>>(new Set());
   markBroken(i: number) {
     const s = new Set(this.broken());
@@ -71,7 +67,6 @@ export default class AvatarPickerComponent {
     this.broken.set(s);
   }
 
-  /** Clic sur backdrop (le :host) => fermer */
   @HostListener('click')
   onHostClick() {
     this.cancel.emit();

@@ -52,9 +52,12 @@
 
         <p *ngIf="errorMessage" class="error" role="alert">{{ errorMessage }}</p>
 
-        <!-- Retire ce bloc si tu ne veux plus l'indice démo -->
+        <!-- ID pour connexions test -->
         <p class="demo">
-          Démo : <strong>alice@example.com</strong> / <strong>Password123!</strong>
+          Test utilisateur : <strong>alice@example.com</strong> / <strong>Password123!</strong>
+        </p>
+        <p class="demo">
+          Test administrateur : <strong>yoann@ecoride.com</strong> / <strong>Password123!</strong>
         </p>
       </form>
     </div>
@@ -70,3 +73,22 @@
     </aside>
   </div>
 </section>
+<footer class="site-footer">
+  <div class="footer-wrap">
+    <div class="brand">
+      <img src="assets/illustrations/Logo-ecoride.png" alt="EcoRide logo" />
+    </div>
+
+    <div class="contact">
+      <div class="title">EcoRide SAS</div>
+      <ul>
+        <li>12 rue du Colibris, 75010 Paris, France</li>
+        <li>06 12 34 56 78</li>
+        <li><a href="mailto:contact@ecoride.com">contact@ecoride.com</a></li>
+        <li>L’équipe EcoRide vous répond sous 24h</li>
+      </ul>
+    </div>
+
+    <div class="wordmark">EcoRide</div>
+  </div>
+</footer>

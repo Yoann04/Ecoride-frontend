@@ -25,7 +25,6 @@ export class FavoritesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.load();
-    // ✅ Recharge automatiquement quand un favori est ajouté/retiré ailleurs
     this.sub = this.users.favoritesRefresh$.subscribe(() => this.load());
   }
 

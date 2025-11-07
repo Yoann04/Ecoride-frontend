@@ -14,10 +14,15 @@ export interface TripSearchFilters {
   limit?: number;
 }
 
+export interface DriverReviewSummary {
+  avg: number;
+  count: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TripService {
   private readonly base = '/api/trips';
-  private readonly reviewsBase = '/api/review';
+  private readonly reviewsBase = '/api/reviews';
   private readonly vehiclesBase = '/api/vehicles';
 
   constructor(private http: HttpClient) {}
@@ -89,13 +94,23 @@ export class TripService {
     );
   }
 
+  // ---- Reviews ----
   async getReviewsForTrip(tripId: number): Promise<Review[]> {
     return firstValueFrom(this.http.get<Review[]>(`${this.reviewsBase}/trip/${tripId}`));
   }
+
   async addReview(trip_id: number, rating: number, comment: string): Promise<void> {
     await firstValueFrom(this.http.post<void>(this.reviewsBase, { trip_id, rating, comment }));
   }
 
+  // ★ Résumé des avis du conducteur (moyenne + nombre)
+  async getDriverSummary(driverId: number): Promise<DriverReviewSummary> {
+    return firstValueFrom(
+      this.http.get<DriverReviewSummary>(`${this.reviewsBase}/driver/${driverId}/summary`)
+    );
+  }
+
+  // ---- Trips creation ----
   async createTrip(payload: any): Promise<{ id: number }> {
     return await firstValueFrom(this.http.post<{ id: number }>(`/api/trips`, payload));
   }
@@ -103,7 +118,6 @@ export class TripService {
   private buildSearchParams(filters: TripSearchFilters): HttpParams {
     let params = new HttpParams();
 
-    // --- use ONE pair of keys only ---
     if (filters.origin) params = params.set('origin', filters.origin);
     if (filters.destination) params = params.set('destination', filters.destination);
 

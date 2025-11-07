@@ -1,4 +1,3 @@
-// src/app/shared/ui/topbar.component.ts
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -39,12 +38,14 @@ import { UserService } from '../../../services/user.service';
 
           <!-- Liens visibles SEULEMENT quand connecté -->
           <ng-container *ngIf="userService.currentUser$ | async as user">
+            <!-- Masquer pour le compte admin -->
             <a
               class="nav-link"
               routerLink="/trips"
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
               (click)="close()"
+              *ngIf="!isSpecialAdmin(user)"
               >Rechercher un trajet</a
             >
             <a
@@ -53,12 +54,12 @@ import { UserService } from '../../../services/user.service';
               routerLinkActive="active"
               [routerLinkActiveOptions]="{ exact: true }"
               (click)="close()"
+              *ngIf="!isSpecialAdmin(user)"
               >Mon profil</a
             >
           </ng-container>
         </div>
 
-        <!-- Zone droite -->
         <div class="right">
           <ng-container *ngIf="userService.currentUser$ | async as u; else auth">
             <div class="user">
@@ -95,6 +96,12 @@ export class TopbarComponent implements OnDestroy {
       .subscribe(() => this.open.set(false));
   }
 
+  // --- Masquage spécifique pour le compte admin ---
+  isSpecialAdmin(user: { email?: string } | null | undefined): boolean {
+    const email = (user?.email ?? '').trim().toLowerCase();
+    return email === 'yoann@ecoride.com';
+  }
+
   toggle() {
     this.open.update((v) => !v);
   }
@@ -103,13 +110,11 @@ export class TopbarComponent implements OnDestroy {
   }
 
   logout() {
-    // 1) On ne laisse pas AuthService rediriger (on gère ici)
     this.auth.logout(false);
 
-    // 2) On nettoie l'utilisateur stocké (met à jour l'UI immédiatement)
     this.userService.clear();
 
-    // 3) Redirection vers l'accueil
+    // Redirection vers l'accueil
     this.router.navigate(['/home']);
   }
 

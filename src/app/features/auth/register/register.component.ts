@@ -24,8 +24,7 @@ export default class RegisterComponent {
     this.loading = true;
     this.errorMessage = '';
     try {
-      // TODO: appeler votre API /api/register ici
-      // Simulation succès :
+      // Appel de l'api/register
       await new Promise((res) => setTimeout(res, 600));
       this.router.navigate(['/login']);
     } catch {

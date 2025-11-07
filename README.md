@@ -64,7 +64,7 @@ For more information on using the Angular CLI, including detailed command refere
 
 ```bash
 cd ecoride-backend
-cp .env.example .env.local   # puis éditer DATABASE_URL et JWT_PASSPHRASE
+cp .env.example .env.local
 composer install
 # Si les clés JWT n'existent pas déjà :
 # php bin/console lexik:jwt:generate-keypair

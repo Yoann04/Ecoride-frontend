@@ -26,7 +26,7 @@ export class VehicleService {
     return firstValueFrom(this.http.post<{ id: number }>(this.base, payload));
   }
 
-  /** (Optionnel) Supprimer un véhicule */
+  /** Supprimer un véhicule */
   async remove(id: number): Promise<void> {
     await firstValueFrom(this.http.delete<void>(`${this.base}/${id}`));
   }

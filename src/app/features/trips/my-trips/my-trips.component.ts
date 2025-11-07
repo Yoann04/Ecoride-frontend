@@ -130,7 +130,7 @@ export default class MyTripsComponent {
 
   async setTab(tab: 'driver' | 'favorites') {
     this.activeTab.set(tab);
-    // lazy load favoris si pas chargé
+
     if (tab === 'favorites' && this.favs().length === 0) {
       await this.loadFavorites();
     }
@@ -144,7 +144,6 @@ export default class MyTripsComponent {
     try {
       const [driver, favorites] = await Promise.allSettled([
         this.trips.byDriver(),
-        // on peut retarder les favoris (mais on les charge ici pour simplicité)
         this.trips.favorites(),
       ]);
       if (driver.status === 'fulfilled') this.mine.set(driver.value);
@@ -184,7 +183,6 @@ export default class MyTripsComponent {
   }
 
   dateLabel(t: Trip): string {
-    // t.departureDate = "YYYY-MM-DD" | ISO ; on affiche au format FR
     try {
       const d = new Date(`${t.departureDate}T${t.departureTime ?? '00:00'}:00`);
       if (isNaN(d.getTime())) return t.departureDate;

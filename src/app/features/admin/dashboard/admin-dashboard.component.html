@@ -1,0 +1,103 @@
+<div class="site-body">
+  <div class="container admin-dashboard">
+    <h1 class="page-title">Admin Dashboard</h1>
+
+    <!-- Barre d’actions -->
+    <div class="toolbar">
+      <nav class="tabs">
+        <a
+          class="tab"
+          routerLink="/admin"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          Tableau de bord
+        </a>
+
+        <a class="tab" routerLink="/admin/users" routerLinkActive="active"> Utilisateurs </a>
+
+        <a class="tab" routerLink="/admin/trips" routerLinkActive="active"> Trajets </a>
+
+        <a class="tab" routerLink="/admin/reviews" routerLinkActive="active"> Avis </a>
+      </nav>
+
+      <div class="right">
+        <label for="week" class="label">Semaine</label>
+        <select id="week" [(ngModel)]="week" (change)="onChangeWeek()" class="select">
+          <option *ngFor="let w of weeks" [value]="w">Sem {{ w }}</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpis">
+      <div class="kpi" *ngFor="let k of kpis">
+        <div class="kpi-label">{{ k.label }}</div>
+        <div class="kpi-value">{{ k.value }}</div>
+      </div>
+    </div>
+
+    <!-- Graph + utilisateurs récents -->
+    <div class="grid-2">
+      <div class="card chart-card">
+        <svg viewBox="0 0 560 160" preserveAspectRatio="none" class="chart">
+          <line x1="40" y1="130" x2="540" y2="130" class="axis" />
+          <line x1="40" y1="30" x2="40" y2="130" class="axis" />
+          <g class="y-grid">
+            <ng-container *ngFor="let val of [0, 10, 20, 30, 40]">
+              <text x="34" [attr.y]="134 - val * 2.5" class="y-label">{{ val }}</text>
+              <line
+                x1="40"
+                [attr.y1]="130 - val * 2.5"
+                x2="540"
+                [attr.y2]="130 - val * 2.5"
+                class="grid-line"
+              />
+            </ng-container>
+          </g>
+          <polyline [attr.points]="chartPoints" class="line"></polyline>
+        </svg>
+        <div class="chart-labels">
+          <span *ngFor="let d of chartLabels">{{ d }}</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Utilisateurs récents</div>
+        <ul class="recent-users">
+          <li *ngFor="let u of recentUsers">
+            <span class="avatar">{{ u.initials }}</span>
+            <div class="meta">
+              <div class="name">{{ u.name }}</div>
+              <div class="date">{{ u.date }}</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Trajets récents + Avis récents -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Trajets récents</div>
+        <ul class="recent-trips">
+          <li *ngFor="let t of recentTrips">
+            <span class="route">{{ t.from }} → {{ t.to }}</span>
+            <span class="date">{{ t.date }}</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Avis récents</div>
+        <ul class="recent-reviews">
+          <li *ngFor="let r of recentReviews">
+            <div class="stars" [attr.data-stars]="r.stars"></div>
+            <p class="text">“{{ r.text }}”</p>
+            <div class="author">— {{ r.author }} • {{ r.date }}</div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
