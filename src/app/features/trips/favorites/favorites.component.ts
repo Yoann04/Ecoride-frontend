@@ -1,49 +1,48 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { Trip } from '../../../models/trip.model';
 import { TripService } from '../../../services/trip.service';
+import { UserService } from '../../../services/user.service';
 
 @Component({
-  selector: 'app-favorites',
   standalone: true,
+  selector: 'app-favorites',
   imports: [CommonModule, RouterLink],
   templateUrl: './favorites.component.html',
+  styleUrls: ['./favorites.component.scss'],
 })
-export class FavoritesComponent implements OnInit {
+export class FavoritesComponent implements OnInit, OnDestroy {
+  private tripsApi = inject(TripService);
+  private users = inject(UserService);
+
+  trips: Trip[] = [];
   loading = false;
   error = '';
-  favorites: Trip[] = [];
 
-  constructor(private trips: TripService) {}
+  private sub?: Subscription;
 
-  async ngOnInit() {
+  ngOnInit(): void {
+    this.load();
+    // ✅ Recharge automatiquement quand un favori est ajouté/retiré ailleurs
+    this.sub = this.users.favoritesRefresh$.subscribe(() => this.load());
+  }
+
+  ngOnDestroy(): void {
+    this.sub?.unsubscribe();
+  }
+
+  private async load() {
     this.loading = true;
+    this.error = '';
     try {
-      this.favorites = await this.trips.favorites();
+      this.trips = await this.tripsApi.favorites();
     } catch (e: any) {
       this.error = e?.message || 'Impossible de charger vos favoris.';
+      this.trips = [];
     } finally {
       this.loading = false;
-    }
-  }
-
-  fullName(t: Trip) {
-    return t.driver?.prenom
-      ? `${t.driver.prenom} ${t.driver.nom ?? ''}`.trim()
-      : t.driver?.pseudo || 'Conducteur';
-  }
-
-  avatarUrl(t: Trip) {
-    return t.driver?.avatar || '/assets/default-avatar.png';
-  }
-
-  async removeFavorite(t: Trip) {
-    try {
-      await this.trips.removeFavorite(t.id);
-      this.favorites = this.favorites.filter((f) => f.id !== t.id);
-    } catch {
-      alert('Erreur lors de la suppression du favori.');
     }
   }
 }

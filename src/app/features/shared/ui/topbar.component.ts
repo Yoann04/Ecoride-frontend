@@ -47,7 +47,6 @@ import { UserService } from '../../../services/user.service';
               (click)="close()"
               >Rechercher un trajet</a
             >
-
             <a
               class="nav-link"
               routerLink="/profile"
@@ -104,7 +103,13 @@ export class TopbarComponent implements OnDestroy {
   }
 
   logout() {
-    this.auth.logout();
+    // 1) On ne laisse pas AuthService rediriger (on gère ici)
+    this.auth.logout(false);
+
+    // 2) On nettoie l'utilisateur stocké (met à jour l'UI immédiatement)
+    this.userService.clear();
+
+    // 3) Redirection vers l'accueil
     this.router.navigate(['/home']);
   }
 

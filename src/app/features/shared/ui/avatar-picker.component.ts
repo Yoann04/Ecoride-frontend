@@ -5,10 +5,8 @@ import { Component, EventEmitter, HostListener, Input, Output, signal } from '@a
   selector: 'app-avatar-picker',
   standalone: true,
   imports: [CommonModule],
-  // Le style d'overlay est dans avatar-picker.component.scss (avec :host)
   styleUrls: ['./avatar-picker.component.scss'],
   template: `
-    <!-- Carte modale -->
     <div
       class="picker-card"
       role="dialog"
@@ -19,10 +17,10 @@ import { Component, EventEmitter, HostListener, Input, Output, signal } from '@a
       <h3>Choisir un avatar</h3>
 
       <div class="grid">
-        <!-- Tuile “Initiales” -->
+        <!-- ✅ Tuile “Initiales dynamiques” -->
         <button type="button" class="avatar-item" (click)="onPick(null)">
           <div class="inner initials">
-            <span class="letters">AD</span>
+            <span class="letters">{{ initialsText }}</span>
             <small>Initiales</small>
           </div>
         </button>
@@ -47,7 +45,7 @@ import { Component, EventEmitter, HostListener, Input, Output, signal } from '@a
   `,
 })
 export default class AvatarPickerComponent {
-  /** Liste d’avatars (surchageable si besoin) */
+  /** Liste d’avatars (par défaut) */
   @Input() avatars: string[] = [
     'assets/illustrations/Avatar1.png',
     'assets/illustrations/Avatar2.png',
@@ -57,6 +55,9 @@ export default class AvatarPickerComponent {
     'assets/illustrations/Avatar6.png',
     'assets/illustrations/Avatar7.png',
   ];
+
+  /** ✅ Les initiales dynamiques passées par le parent */
+  @Input() initialsText: string = 'IN';
 
   /** Événements */
   @Output() pick = new EventEmitter<string | null>();

@@ -6,12 +6,9 @@ export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  // Si aucun token → redirige vers /login
   if (!auth.token) {
     const returnUrl = router.url || '/';
     return router.createUrlTree(['/login'], { queryParams: { returnUrl } });
   }
-
-  // Sinon, autorise la navigation
   return true as UrlTree | boolean;
 };

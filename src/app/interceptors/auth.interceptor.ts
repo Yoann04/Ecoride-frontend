@@ -1,3 +1,4 @@
+// src/app/interceptors/auth.interceptor.ts
 import { HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
@@ -9,21 +10,21 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  // N’attache le Bearer que pour les appels /api
-  const shouldAttach = req.url.startsWith('/api');
+  const isApi = req.url.startsWith('/api');
+  const token = auth.token;
+  const hadAuthHeader = isApi && !!token;
 
-  const authReq =
-    shouldAttach && auth.token
-      ? req.clone({ setHeaders: { Authorization: `Bearer ${auth.token}` } })
-      : req;
+  const authReq = hadAuthHeader
+    ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } })
+    : req;
 
   return next(authReq).pipe(
     catchError((err) => {
-      if (err?.status === 401 || err?.status === 403) {
-        // Token expiré ou invalide -> nettoyage + redirection
+      // ➜ On ne « casse » la session que si la requête portait un Bearer
+      if (hadAuthHeader && (err?.status === 401 || err?.status === 403)) {
         auth.clearToken();
-        const redirect = encodeURIComponent(router.url || '/');
-        router.navigate(['/login'], { queryParams: { returnUrl: router.url || '/' } });
+        const returnUrl = router.url || '/';
+        router.navigate(['/login'], { queryParams: { returnUrl } });
       }
       return throwError(() => err);
     })

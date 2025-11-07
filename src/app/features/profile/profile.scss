@@ -164,8 +164,39 @@
   border: 1px solid #e3efe3;
 }
 
-.actions-row {
-  padding: 16px 22px;
+/* ===== Bulle "Proposer un trajet" ===== */
+
+.actions-row.center {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.chip-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #fff;
+  background-color: #64a859;
+  border: none;
+  border-radius: 15px;
+  text-decoration: none;
+  box-shadow: 0 6px 12px rgba(100, 168, 89, 0.25);
+  transition: all 0.25s ease;
+
+  &:hover {
+    background-color: #4f8b47;
+    box-shadow: 0 8px 16px rgba(79, 139, 71, 0.35);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 6px rgba(79, 139, 71, 0.4);
+  }
 }
 .back {
   text-decoration: none;

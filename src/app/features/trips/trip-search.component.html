@@ -2,25 +2,8 @@
   <main class="search-page">
     <div class="titlebar">
       <h1>Covoiturage</h1>
-
-      <!-- CTA Proposer un trajet -->
-      <div class="cta-wrap">
-        <ng-container *ngIf="isLoggedIn(); else mustLogin">
-          <a class="btn primary" [routerLink]="['/trips/new']">Proposer un trajet</a>
-        </ng-container>
-        <ng-template #mustLogin>
-          <a
-            class="btn ghost"
-            [routerLink]="['/login']"
-            [queryParams]="{ returnUrl: '/trips/new' }"
-          >
-            Se connecter pour proposer
-          </a>
-        </ng-template>
-      </div>
     </div>
 
-    <!-- Barre de recherche -->
     <form class="search-form" (ngSubmit)="search()">
       <div class="grid">
         <label class="field">
@@ -57,7 +40,6 @@
 
     <p *ngIf="error" class="error">{{ error }}</p>
 
-    <!-- Image illustrée quand aucun résultat -->
     <section class="hero" *ngIf="!loading && !error && trips.length === 0">
       <img
         class="hero-img"
@@ -68,19 +50,18 @@
       />
     </section>
 
-    <!-- Résultats -->
     <section class="list" *ngIf="trips.length > 0">
       <article class="trip-card" *ngFor="let t of trips">
         <div class="left">
           <div class="avatar-wrapper">
-            <ng-container *ngIf="t.driver?.avatar; else initials">
-              <img class="avatar" [src]="t.driver?.avatar" alt="Avatar conducteur" />
+            <ng-container *ngIf="hasAvatar(t); else initialsTpl">
+              <img class="avatar" [src]="avatarUrl(t)" alt="Avatar conducteur" />
             </ng-container>
-
-            <ng-template #initials>
-              <div class="avatar initials">{{ t.driver?.prenom?.[0] }}{{ t.driver?.nom?.[0] }}</div>
+            <ng-template #initialsTpl>
+              <div class="initials">{{ driverInitials(t) }}</div>
             </ng-template>
           </div>
+
           <div class="info">
             <div class="driver">{{ fullName(t) }}</div>
           </div>
@@ -95,7 +76,6 @@
     </section>
   </main>
 
-  <!-- Footer -->
   <footer class="site-footer">
     <div class="footer-wrap">
       <div class="brand">

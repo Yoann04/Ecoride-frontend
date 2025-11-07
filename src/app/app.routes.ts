@@ -1,29 +1,33 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth.guard';
+import { guestGuard } from './guards/guest.guard';
 
-// --- AUTH ---
 import ForgotPasswordComponent from './features/auth/forgot-password/forgot-password.component';
 import LoginComponent from './features/auth/login/login.component';
 import RegisterComponent from './features/auth/register/register.component';
-
-// --- BASE ---
 import HomeComponent from './features/home/home.component';
-
-// --- TRIPS (list publique) ---
 import TripSearchComponent from './features/trips/trip-search.component';
 
 export const routes: Routes = [
   // Auth
-  { path: 'login', component: LoginComponent },
-  { path: 'register', component: RegisterComponent },
-  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'login', canActivate: [guestGuard], component: LoginComponent },
+  { path: 'register', canActivate: [guestGuard], component: RegisterComponent },
+  { path: 'forgot-password', canActivate: [guestGuard], component: ForgotPasswordComponent },
 
   // Accueil
   { path: 'home', component: HomeComponent },
 
-  // Recherche de trajets (publique)
+  // Recherche de trajets
   { path: 'trips', component: TripSearchComponent },
+
+  // ⚠️ IMPORTANT : /trips/new AVANT /trips/:id
+  {
+    path: 'trips/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/trips/create-trip/create-trip.component').then((m) => m.default),
+  },
 
   // Détail d’un trajet
   {
@@ -34,15 +38,7 @@ export const routes: Routes = [
       ),
   },
 
-  // Proposer un trajet (protégé)
-  {
-    path: 'trips/new',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/trips/create-trip/create-trip.component').then((m) => m.default),
-  },
-
-  // Mes réservations en tant que passager (protégé)
+  // Mes réservations (protégé)
   {
     path: 'my-reservations',
     canActivate: [authGuard],

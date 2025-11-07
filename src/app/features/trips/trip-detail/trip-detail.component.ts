@@ -1,54 +1,63 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { Review, Trip } from '../../../models/trip.model';
+import { Subscription } from 'rxjs';
+import { Trip } from '../../../models/trip.model';
 import { AuthService } from '../../../services/auth.service';
 import { TripService } from '../../../services/trip.service';
+import { UserService } from '../../../services/user.service';
 
 @Component({
   standalone: true,
   selector: 'app-trip-detail',
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './trip-detail.component.html',
+  styleUrls: ['./trip-detail.component.scss'],
 })
-export class TripDetailComponent implements OnInit {
+export class TripDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private trips = inject(TripService);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private userService = inject(UserService);
+  private cdr = inject(ChangeDetectorRef);
+
+  private sub?: Subscription;
+  private avatarV = Date.now();
 
   loading = true;
   error = '';
   trip: Trip | null = null;
 
-  // Avis
-  newRating = 5;
-  newComment = '';
-  sending = false;
-  sendError = '';
-  sendOk = false;
-
-  // États actions
   favBusy = false;
   reserveBusy = false;
 
-  async ngOnInit() {
+  Math = Math;
+
+  ngOnInit() {
+    this.sub = this.userService.avatarRefresh$.subscribe((v) => {
+      this.avatarV = v || Date.now();
+      this.cdr.markForCheck();
+    });
+    this.init();
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
+
+  private async init() {
     try {
       const id = Number(this.route.snapshot.paramMap.get('id'));
       if (!id) throw new Error('ID invalide');
-
       this.trip = await this.trips.getOne(id);
 
-      // Optionnel : état favori si l’API séparée est active
       try {
         const fav = await this.trips.isFavorite(id);
         if (this.trip) this.trip = { ...this.trip, isFavorite: fav };
-      } catch {
-        /* endpoint non exposé → ignore */
-      }
+      } catch {}
 
-      // Statut de réservation
       try {
         const status = await this.trips.getTripStatus(id);
         if (this.trip) {
@@ -59,9 +68,7 @@ export class TripDetailComponent implements OnInit {
               typeof status.seatsLeft === 'number' ? status.seatsLeft : this.trip.availableSeats,
           };
         }
-      } catch {
-        /* non bloquant */
-      }
+      } catch {}
     } catch {
       this.error = 'Trajet introuvable.';
     } finally {
@@ -69,26 +76,71 @@ export class TripDetailComponent implements OnInit {
     }
   }
 
-  // --- Auth
-  isLoggedIn(): boolean {
-    return !!this.auth.token;
+  private makeAbsolute(url?: string | null): string {
+    if (!url) return '';
+    if (/^https?:\/\//i.test(url)) return url;
+    const normalized = url.startsWith('/') ? url : `/${url}`;
+    return `${window.location.origin}${normalized}`;
   }
 
-  goLogin() {
-    const id = this.trip?.id ?? '';
-    this.router.navigate(['/login'], { queryParams: { returnUrl: `/trips/${id}` } });
+  private withCacheBuster(url: string, v: number): string {
+    return url ? (url.includes('?') ? `${url}&v=${v}` : `${url}?v=${v}`) : '';
   }
 
-  // --- Helpers d’affichage
-  avatarUrl(): string {
-    const u = this.trip?.driver;
-    if (!u) return '/assets/avatars/default.png';
-    return u.avatar || '/assets/avatars/default.png';
+  avatarUrl(d?: { id?: number; avatar?: string | null }): string {
+    if (!d) return '';
+    const me = this.userService.value;
+    const src = d.id === me?.id ? me?.avatar || '' : d.avatar || '';
+    if (!src) return '';
+    return this.withCacheBuster(this.makeAbsolute(src), this.avatarV);
+  }
+
+  initials(u: { prenom?: string; nom?: string; pseudo?: string; email?: string } = {}): string {
+    if (u.pseudo && u.pseudo.trim()) {
+      const letters = u.pseudo.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, '').slice(0, 2);
+      return (letters || '?').toUpperCase();
+    }
+    const p = u.prenom?.[0] ?? '';
+    const n = u.nom?.[0] ?? '';
+    const fb = u.email?.[0] ?? '?';
+    return (p + n || fb).toUpperCase();
+  }
+
+  onAvatarError(ev: Event): void {
+    const img = ev.target as HTMLImageElement;
+    if (img) img.style.display = 'none';
   }
 
   brandLabel(): string {
-    const b: any = this.trip?.vehicle?.brand ?? {};
-    return b?.libelle ?? b?.marque ?? '—';
+    const v: any = this.trip?.vehicle;
+    if (!v) return '—';
+    const brand = v.brand?.libelle ?? v.brand?.marque ?? v.marque ?? '';
+    const model = v.model ?? v.modele ?? '';
+    const label = `${brand} ${model}`.trim();
+    return label || '—';
+  }
+
+  isEco(): boolean {
+    if (this.trip?.isEcological) return true;
+    const v: any = this.trip?.vehicle ?? {};
+    const type = String(v.energy_type || v.energyType || '').toLowerCase();
+    if (type.includes('electric') || type.includes('électrique')) return true;
+    const label = `${this.brandLabel()} ${v.energy_type || ''}`.toLowerCase();
+    const electricHints = [
+      'tesla',
+      'model',
+      'ev',
+      'bev',
+      'electric',
+      'électrique',
+      'y long range',
+      'y performance',
+    ];
+    return electricHints.some((k) => label.includes(k));
+  }
+
+  isFav(): boolean {
+    return !!this.trip?.isFavorite;
   }
 
   toTime(dateStr?: string, timeStr?: string): string {
@@ -111,40 +163,6 @@ export class TripDetailComponent implements OnInit {
     return Math.round((total / reviews.length) * 10) / 10;
   }
 
-  // --- Avis
-  private clampRating(n: number): number {
-    if (Number.isNaN(+n)) return 5;
-    return Math.max(1, Math.min(5, Math.round(+n)));
-  }
-
-  async submitReview() {
-    if (!this.trip) return;
-    if (!this.isLoggedIn()) return this.goLogin();
-
-    this.sendError = '';
-    this.sendOk = false;
-    this.sending = true;
-
-    try {
-      const rating = this.clampRating(this.newRating);
-      const comment = this.newComment.trim();
-      if (comment.length < 3) throw new Error('Le commentaire doit faire au moins 3 caractères.');
-
-      await this.trips.addReview(this.trip.id, rating, comment);
-      const reviews = (await this.trips.getReviewsForTrip(this.trip.id)) as Review[];
-      this.trip = { ...this.trip, reviews };
-
-      this.newRating = 5;
-      this.newComment = '';
-      this.sendOk = true;
-    } catch (e: any) {
-      this.sendError = e?.error?.error || e?.message || "Impossible d'envoyer l'avis.";
-    } finally {
-      this.sending = false;
-    }
-  }
-
-  // --- Favori (toggle optimiste)
   async toggleFavorite() {
     if (!this.trip) return;
     if (!this.isLoggedIn()) return this.goLogin();
@@ -152,15 +170,17 @@ export class TripDetailComponent implements OnInit {
 
     this.favBusy = true;
     const prev = !!this.trip.isFavorite;
-
-    // UI optimiste
-    this.trip = { ...this.trip, isFavorite: !prev };
+    this.trip = { ...this.trip, isFavorite: !prev }; // UI optimiste
 
     try {
-      if (prev) await this.trips.removeFavorite(this.trip.id);
-      else await this.trips.addFavorite(this.trip.id);
+      if (prev) {
+        await this.trips.removeFavorite(this.trip.id);
+      } else {
+        await this.trips.addFavorite(this.trip.id);
+      }
+      // ✅ notifie le reste de l’app (profil, liste favoris)
+      this.userService.notifyFavoritesChanged();
     } catch {
-      // rollback si échec
       this.trip = { ...this.trip, isFavorite: prev };
       alert('Impossible de mettre à jour le favori.');
     } finally {
@@ -168,7 +188,6 @@ export class TripDetailComponent implements OnInit {
     }
   }
 
-  // --- Réservation
   async reserve() {
     if (!this.trip) return;
     if (!this.isLoggedIn()) return this.goLogin();
@@ -199,5 +218,14 @@ export class TripDetailComponent implements OnInit {
     } finally {
       this.reserveBusy = false;
     }
+  }
+
+  isLoggedIn(): boolean {
+    return !!this.auth.token;
+  }
+
+  goLogin() {
+    const id = this.trip?.id ?? '';
+    this.router.navigate(['/login'], { queryParams: { returnUrl: `/trips/${id}` } });
   }
 }

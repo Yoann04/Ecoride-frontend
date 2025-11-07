@@ -1,9 +1,9 @@
 <section class="auth page-auth">
   <div class="auth-shell">
-    <!-- Colonne gauche : carte de connexion -->
+    <!-- Carte de connexion -->
     <div class="panel">
       <h1>Connexion</h1>
-      <p class="sub">Ravi de vous revoir! Continuez vos trajets en toute simplicité.</p>
+      <p class="sub">Ravi de vous revoir ! Continuez vos trajets en toute simplicité.</p>
 
       <form (ngSubmit)="login()" autocomplete="on" novalidate>
         <div class="field">
@@ -32,43 +32,34 @@
           />
         </div>
 
-        <!-- ligne "se souvenir / oublié" -->
         <div class="meta-row">
           <label class="remember">
             <input type="checkbox" [(ngModel)]="rememberMe" name="remember" />
             <span>Se souvenir de moi</span>
           </label>
 
-          <!-- AVANT (bloqué)  -->
-          <!-- <a class="link-ghost" href="#" (click)="$event.preventDefault()">Mot de passe oublié ?</a> -->
-
-          <!-- APRÈS (navigue) -->
           <a class="link-ghost" routerLink="/forgot-password">Mot de passe oublié ?</a>
         </div>
 
-        <!-- … plus bas … -->
+        <button class="btn primary" type="submit" [disabled]="loading">
+          {{ loading ? 'Connexion…' : 'Se connecter' }}
+        </button>
 
-        <p class="alt">
-          Pas encore de compte ?
-          <a class="link-ghost" routerLink="/register">Créer un compte</a>
-        </p>
-
-        <button class="btn primary" type="submit" [disabled]="loading">Se connecter</button>
         <p class="hint">
           Pas encore de compte ?
           <a class="link-ghost" routerLink="/register">Créer un compte</a>
         </p>
 
-        <p *ngIf="errorMessage" class="error">{{ errorMessage }}</p>
+        <p *ngIf="errorMessage" class="error" role="alert">{{ errorMessage }}</p>
 
+        <!-- Retire ce bloc si tu ne veux plus l'indice démo -->
         <p class="demo">
           Démo : <strong>alice@example.com</strong> / <strong>Password123!</strong>
         </p>
       </form>
     </div>
-    <!-- /panel -->
 
-    <!-- Colonne droite : illustration & bénéfices -->
+    <!-- Illustration / bénéfices -->
     <aside class="art" aria-hidden="true">
       <div class="art-illus"></div>
       <ul class="bullets">
@@ -78,5 +69,4 @@
       </ul>
     </aside>
   </div>
-  <!-- /auth-shell -->
 </section>

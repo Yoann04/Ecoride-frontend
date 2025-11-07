@@ -1,90 +1,134 @@
-<div *ngIf="loading">Chargement…</div>
-<p *ngIf="!loading && error" class="error">{{ error }}</p>
+<div class="page">
+  <main class="trip-detail" *ngIf="!loading && !error && trip as t">
+    <h1>Trajet</h1>
 
-<ng-container *ngIf="!loading && !error && trip as t">
-  <header class="header">
-    <img [src]="avatarUrl()" alt="Avatar conducteur" class="avatar" />
-    <div>
-      <h1>{{ t.departureCity }} → {{ t.arrivalCity }}</h1>
-      <div class="sub">
-        {{ t.departureDate | date : 'EEEE d MMMM yyyy' }} •
-        {{ toTime(t.departureDate, t.departureTime) }}
-        <span class="price">{{ t.price | number : '1.2-2' }} €</span>
+    <section class="card">
+      <header class="header">
+        <div class="driver-info">
+          <!-- Avatar / Initiales (même logique que search & topbar) -->
+          <ng-container *ngIf="t?.driver as d">
+            <div class="avatar-wrapper" *ngIf="avatarUrl(d); else initialsTpl">
+              <img
+                [src]="avatarUrl(d)"
+                (error)="onAvatarError($event)"
+                alt="Avatar du conducteur"
+              />
+            </div>
+            <ng-template #initialsTpl>
+              <div class="avatar-wrapper initials">{{ initials(d) }}</div>
+            </ng-template>
+          </ng-container>
+
+          <div class="driver">
+            <div class="name">{{ t.driver?.prenom || 'Conducteur' }}</div>
+            <span class="date">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path fill="currentColor" d="M7 2h2v2h6V2h2v2h3v16H4V4h3V2Zm12 6H5v10h14V8Z" />
+              </svg>
+              {{ t.departureDate }} • {{ toTime(t.departureDate, t.departureTime) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="price-block">
+          <div class="price">{{ t.price ?? 0 | number : '1.2-2' }} €</div>
+          <div class="seats">
+            {{ t.availableSeats ?? 0 }} place{{
+              (t.availableSeats ?? 0) > 1 ? 's' : ''
+            }}
+            disponible{{ (t.availableSeats ?? 0) > 1 ? 's' : '' }}
+          </div>
+        </div>
+      </header>
+
+      <div class="route">
+        <div class="kv">
+          <div class="k">Départ :</div>
+          <div class="v">{{ t.departureCity || '—' }}</div>
+        </div>
+        <div class="kv">
+          <div class="k">Arrivée :</div>
+          <div class="v">{{ t.arrivalCity || '—' }}</div>
+        </div>
       </div>
-      <div class="meta">
-        Véhicule : {{ brandLabel() }} • Places restantes : {{ t.availableSeats }}
-        <span *ngIf="t.reserved">• ✅ Réservé</span>
+
+      <hr class="sep" />
+
+      <div class="cols">
+        <div class="col">
+          <h4>Informations supplémentaires</h4>
+          <div class="kv">
+            <span class="k">Heure de départ :</span>
+            <span class="v">{{ toTime(t.departureDate, t.departureTime) }}</span>
+          </div>
+          <div class="kv">
+            <span class="k">Véhicule :</span>
+            <span class="v">{{ brandLabel() }}</span>
+          </div>
+          <div class="kv">
+            <span class="k">Écologique :</span>
+            <span class="v">{{ isEco() ? 'Oui' : 'Non' }}</span>
+          </div>
+        </div>
+
+        <div class="col right">
+          <h4>Avis sur le conducteur</h4>
+          <div class="stars">
+            <span class="star" *ngFor="let s of [1, 2, 3, 4, 5]; let i = index">
+              {{ i < Math.round(averageRating()) ? '★' : '☆' }}
+            </span>
+          </div>
+          <div class="avg">{{ averageRating() }} / 5 ({{ reviewsCount() }} avis)</div>
+          <a class="contact" href="#">Contacter le conducteur</a>
+        </div>
       </div>
-      <div class="rating" *ngIf="reviewsCount()">
-        ★ {{ averageRating() }} / 5 ({{ reviewsCount() }} avis)
-      </div>
+
+      <section class="actions">
+        <button class="ghost" [disabled]="favBusy" (click)="toggleFavorite()">
+          {{ isFav() ? 'Retirer des favoris' : 'Ajouter aux favoris' }}
+        </button>
+
+        <button
+          class="primary"
+          *ngIf="!t.reserved"
+          (click)="reserve()"
+          [disabled]="reserveBusy || (t.availableSeats || 0) === 0"
+        >
+          RÉSERVER CE TRAJET
+        </button>
+
+        <button
+          class="danger"
+          *ngIf="t.reserved"
+          (click)="cancelReservation()"
+          [disabled]="reserveBusy"
+        >
+          Annuler ma réservation
+        </button>
+      </section>
+    </section>
+  </main>
+
+  <p *ngIf="loading">Chargement…</p>
+  <p *ngIf="!loading && error" class="error">{{ error }}</p>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-wrap">
+    <div class="brand">
+      <img src="assets/illustrations/Logo-ecoride.png" alt="EcoRide logo" />
     </div>
-  </header>
 
-  <section class="actions">
-    <!-- Favori -->
-    <button (click)="toggleFavorite()" [disabled]="favBusy">
-      <ng-container *ngIf="t.isFavorite; else notFav">★ Retirer des favoris</ng-container>
-      <ng-template #notFav>☆ Ajouter aux favoris</ng-template>
-    </button>
-
-    <!-- Réserver / Annuler -->
-    <button
-      *ngIf="!t.reserved"
-      (click)="reserve()"
-      [disabled]="reserveBusy || (t.availableSeats || 0) === 0"
-    >
-      Réserver
-    </button>
-    <button *ngIf="t.reserved" (click)="cancelReservation()" [disabled]="reserveBusy">
-      Annuler ma réservation
-    </button>
-
-    <!-- Connexion -->
-    <button *ngIf="!isLoggedIn()" (click)="goLogin()">Se connecter</button>
-  </section>
-
-  <section class="reviews">
-    <h2>Laisser un avis</h2>
-    <div *ngIf="!isLoggedIn()" class="muted">Connectez-vous pour laisser un avis.</div>
-
-    <form *ngIf="isLoggedIn()" (ngSubmit)="submitReview()">
-      <label
-        >Note
-        <input type="number" [(ngModel)]="newRating" name="rating" min="1" max="5" />
-      </label>
-
-      <label
-        >Commentaire
-        <textarea [(ngModel)]="newComment" name="comment" rows="3"></textarea>
-      </label>
-
-      <button type="submit" [disabled]="sending">Envoyer</button>
-      <span *ngIf="sendOk" class="ok">Merci pour votre avis !</span>
-      <span *ngIf="sendError" class="error">{{ sendError }}</span>
-    </form>
-
-    <!-- AVIS: safe navigation partout -->
-    <div class="list" *ngIf="t.reviews?.length">
-      <h3>Avis ({{ t.reviews?.length }})</h3>
+    <div class="contact">
+      <div class="title">EcoRide SAS</div>
       <ul>
-        <li *ngFor="let r of t.reviews">
-          <strong>★ {{ r.rating }}</strong> – {{ r.comment }}
-        </li>
+        <li>12 rue du Colibris, 75010 Paris, France</li>
+        <li>06 12 34 56 78</li>
+        <li><a href="mailto:contact@ecoride.com">contact@ecoride.com</a></li>
+        <li>L’équipe EcoRide vous répond sous 24h</li>
       </ul>
     </div>
 
-    <!-- Boutons réserver / annuler -->
-    <button
-      *ngIf="!t.reserved"
-      (click)="reserve()"
-      [disabled]="reserveBusy || (t.availableSeats || 0) === 0"
-    >
-      Réserver
-    </button>
-
-    <button *ngIf="t.reserved" (click)="cancelReservation()" [disabled]="reserveBusy">
-      Annuler ma réservation
-    </button>
-  </section>
-</ng-container>
+    <div class="wordmark">EcoRide</div>
+  </div>
+</footer>

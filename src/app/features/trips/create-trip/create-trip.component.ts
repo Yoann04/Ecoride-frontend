@@ -48,7 +48,37 @@ import { VehicleService } from '../../../services/vehicle.service';
         align-self: end;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 10px;
+        font-weight: 500;
+        color: #1f2937;
+      }
+
+      .check input[type='checkbox'] {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid #d1d5db;
+        border-radius: 6px;
+        background-color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s ease;
+        cursor: pointer;
+      }
+
+      .check input[type='checkbox']:checked {
+        border-color: #64a859;
+        background-color: #64a859;
+      }
+
+      .check input[type='checkbox']:checked::after {
+        content: '✔';
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
       }
       .actions {
         display: flex;
@@ -95,7 +125,7 @@ export default class CreateTripComponent {
   vehicles: Vehicle[] = [];
   serverError = '';
   submitting = false;
-  todayStr = this.today(); // pour min sur input[type=date]
+  todayStr = this.today();
 
   form = this.fb.group(
     {
@@ -112,7 +142,7 @@ export default class CreateTripComponent {
       availableSeats: [3, [Validators.required, Validators.min(1), Validators.max(9)]],
       isEcological: [false],
 
-      vehicle_id: [null as unknown as number, [Validators.required]],
+      vehicle_id: [null as number | null, [Validators.required]],
     },
     { validators: [CreateTripComponent.arrivalAfterDepartureValidator] }
   );
@@ -123,7 +153,7 @@ export default class CreateTripComponent {
     const aDate = group.get('arrivalDate')?.value as string | null;
     const aTime = group.get('arrivalTime')?.value as string | null;
 
-    if (!dDate || !dTime || !aDate || !aTime) return null; // pas d’arrivée fournie => OK
+    if (!dDate || !dTime || !aDate || !aTime) return null;
 
     const dep = CreateTripComponent.toDate(dDate, dTime);
     const arr = CreateTripComponent.toDate(aDate, aTime);
@@ -134,7 +164,7 @@ export default class CreateTripComponent {
 
   private static toDate(dateStr: string, timeStr: string): Date | null {
     try {
-      const t = timeStr.length === 5 ? `${timeStr}:00` : timeStr;
+      const t = timeStr.length === 5 ? `${timeStr}:00` : timeStr; // HH:mm → HH:mm:ss
       const d = new Date(`${dateStr}T${t}`);
       return isNaN(d.getTime()) ? null : d;
     } catch {
@@ -147,7 +177,6 @@ export default class CreateTripComponent {
   }
 
   async ngOnInit() {
-    // Soft guard : si pas de token → login
     if (!this.auth.token) {
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/trips/new' } });
       return;
@@ -156,13 +185,10 @@ export default class CreateTripComponent {
     try {
       this.vehicles = await this.vehiclesApi.getMy();
       if (!this.vehicles || this.vehicles.length === 0) {
-        // Aucun véhicule → on propose d’en créer un
         this.router.navigate(['/vehicles/new'], { queryParams: { returnUrl: '/trips/new' } });
         return;
       }
-      // Pré-sélectionne le premier véhicule
-      const firstId = this.vehicles[0].id;
-      this.form.patchValue({ vehicle_id: firstId });
+      this.form.patchValue({ vehicle_id: this.vehicles[0].id });
     } catch (e: any) {
       this.serverError = e?.message || 'Impossible de charger vos véhicules.';
     } finally {
@@ -177,20 +203,35 @@ export default class CreateTripComponent {
 
     try {
       const v = this.form.getRawValue();
+
+      // — Normalisations / mapping backend —
+      const priceNum = Number(
+        String(v.price ?? 0)
+          .toString()
+          .replace(',', '.')
+      );
+      const timeDep =
+        (v.departureTime || '').length === 5 ? `${v.departureTime}:00` : v.departureTime;
+      const timeArr = v.arrivalTime
+        ? v.arrivalTime.length === 5
+          ? `${v.arrivalTime}:00`
+          : v.arrivalTime
+        : null;
+
       const payload = {
-        departureCity: (v.departureCity || '').trim(),
-        arrivalCity: (v.arrivalCity || '').trim(),
+        origin: (v.departureCity || '').trim(), // <— clé backend
+        destination: (v.arrivalCity || '').trim(), // <— clé backend
         departureDate: String(v.departureDate), // YYYY-MM-DD
-        departureTime: String(v.departureTime), // HH:mm
+        departureTime: String(timeDep), // HH:mm:ss
         arrivalDate: v.arrivalDate ? String(v.arrivalDate) : null,
-        arrivalTime: v.arrivalTime ? String(v.arrivalTime) : null,
-        price: Number(v.price ?? 0),
+        arrivalTime: timeArr,
+        price: priceNum,
         availableSeats: Number(v.availableSeats ?? 1),
-        isEcological: !!v.isEcological,
+        eco: !!v.isEcological, // <— clé backend
         vehicle_id: Number(v.vehicle_id),
       };
 
-      const res = await this.tripsApi.createTrip(payload);
+      const res = await this.tripsApi.createTrip(payload as any);
       if (res?.id) this.router.navigate(['/trips', res.id]);
       else this.router.navigate(['/trips']);
     } catch (e: any) {
@@ -200,17 +241,22 @@ export default class CreateTripComponent {
     }
   }
 
-  // --- Helpers dates/heures
+  // Helpers dates / heures
   private today(): string {
     const d = new Date();
     const m = `${d.getMonth() + 1}`.padStart(2, '0');
     const day = `${d.getDate()}`.padStart(2, '0');
     return `${d.getFullYear()}-${m}-${day}`;
   }
+
   private nextQuarterHour(): string {
     const d = new Date();
     const minutes = d.getMinutes();
-    const next = Math.ceil((minutes + 1) / 15) * 15;
+    let next = Math.ceil((minutes + 1) / 15) * 15;
+    if (next === 60) {
+      d.setHours(d.getHours() + 1);
+      next = 0;
+    }
     d.setMinutes(next);
     d.setSeconds(0);
     const hh = `${d.getHours()}`.padStart(2, '0');
@@ -219,8 +265,8 @@ export default class CreateTripComponent {
   }
 
   vehicleLabel(v: Vehicle): string {
-    const brand = v.brand?.libelle || v.brand?.marque || v.marque || 'Véhicule';
-    const model = v.model ?? v.modele ?? '';
+    const brand = v.brand?.libelle || v.brand?.marque || (v as any).marque || 'Véhicule';
+    const model = v.model ?? (v as any).modele ?? '';
     return `${brand}${model ? ' ' + model : ''}`;
   }
 }
