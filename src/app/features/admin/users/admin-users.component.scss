@@ -215,4 +215,43 @@
       }
     }
   }
+
+  @media (max-width: 640px) {
+    .toolbar .row {
+      grid-template-columns: 1fr !important;
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .toolbar .row .field {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .toolbar .row .spacer {
+      display: none;
+    }
+
+    .toolbar .row .meta {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px 12px;
+      width: 100%;
+      margin-top: 4px;
+      position: static !important;
+      inset: auto !important;
+      transform: none !important;
+    }
+
+    .toolbar .row .meta .count {
+      white-space: nowrap;
+    }
+
+    .toolbar .row .meta .pager {
+      margin-left: auto;
+    }
+  }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, signal } from '@angular/core';
+import { Component, HostListener, OnDestroy, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { filter, Subscription } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
@@ -24,7 +24,7 @@ import { UserService } from '../../../services/user.service';
           <span></span><span></span><span></span>
         </button>
 
-        <!-- Logo / marque -->
+        <!-- Logo -->
         <div class="left-group">
           <a class="brand" routerLink="/home" aria-label="EcoRide">
             <img
@@ -35,10 +35,17 @@ import { UserService } from '../../../services/user.service';
             />
             <span class="wordmark">EcoRide</span>
           </a>
+        </div>
 
-          <!-- Liens visibles SEULEMENT quand connecté -->
+        <!-- Menu principal (liens visibles uniquement si connecté) -->
+        <nav
+          id="mainmenu"
+          class="mainmenu"
+          [class.open]="open()"
+          role="navigation"
+          aria-label="Menu principal"
+        >
           <ng-container *ngIf="userService.currentUser$ | async as user">
-            <!-- Masquer pour le compte admin -->
             <a
               class="nav-link"
               routerLink="/trips"
@@ -48,6 +55,7 @@ import { UserService } from '../../../services/user.service';
               *ngIf="!isSpecialAdmin(user)"
               >Rechercher un trajet</a
             >
+
             <a
               class="nav-link"
               routerLink="/profile"
@@ -58,8 +66,9 @@ import { UserService } from '../../../services/user.service';
               >Mon profil</a
             >
           </ng-container>
-        </div>
+        </nav>
 
+        <!-- Zone droite -->
         <div class="right">
           <ng-container *ngIf="userService.currentUser$ | async as u; else auth">
             <div class="user">
@@ -69,7 +78,6 @@ import { UserService } from '../../../services/user.service';
                 <ng-template #initHeader>{{ initials(u) }}</ng-template>
               </div>
             </div>
-
             <button class="logout" type="button" (click)="logout()">Déconnexion</button>
           </ng-container>
 
@@ -93,39 +101,51 @@ export class TopbarComponent implements OnDestroy {
   constructor(private router: Router, private auth: AuthService, public userService: UserService) {
     this.sub = this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe(() => this.open.set(false));
+      .subscribe(() => this.close());
   }
 
-  // --- Masquage spécifique pour le compte admin ---
+  @HostListener('window:keydown.escape')
+  onEsc() {
+    this.close();
+  }
+
   isSpecialAdmin(user: { email?: string } | null | undefined): boolean {
     const email = (user?.email ?? '').trim().toLowerCase();
     return email === 'yoann@ecoride.com';
   }
 
   toggle() {
-    this.open.update((v) => !v);
+    const next = !this.open();
+    this.open.set(next);
+    this.lockScroll(next);
   }
+
   close() {
-    this.open.set(false);
+    if (this.open()) {
+      this.open.set(false);
+      this.lockScroll(false);
+    }
+  }
+
+  private lockScroll(lock: boolean) {
+    const b = document.body;
+    b.style.overflow = lock ? 'hidden' : '';
   }
 
   logout() {
     this.auth.logout(false);
-
     this.userService.clear();
-
-    // Redirection vers l'accueil
     this.router.navigate(['/home']);
   }
 
-  displayName(u: { prenom?: string; nom?: string; pseudo?: string; email: string }): string {
-    if (u.pseudo && u.pseudo.trim()) return u.pseudo;
+  displayName(u: { prenom?: string; nom?: string; pseudo?: string; email: string }) {
+    if (u.pseudo?.trim()) return u.pseudo;
     const full = [u.prenom, u.nom].filter(Boolean).join(' ').trim();
     return full || u.email;
   }
 
-  initials(u: { prenom?: string; nom?: string; pseudo?: string; email: string }): string {
-    if (u.pseudo && u.pseudo.trim()) {
+  initials(u: { prenom?: string; nom?: string; pseudo?: string; email: string }) {
+    if (u.pseudo?.trim()) {
       const letters = u.pseudo.replace(/[^A-Za-zÀ-ÖØ-öø-ÿ]/g, '').slice(0, 2);
       return letters.toUpperCase() || '?';
     }
@@ -136,11 +156,11 @@ export class TopbarComponent implements OnDestroy {
   }
 
   fallbackLogo(ev: Event) {
-    const img = ev.target as HTMLImageElement;
-    if (img) img.remove();
+    (ev.target as HTMLImageElement)?.remove();
   }
 
   ngOnDestroy() {
     this.sub?.unsubscribe();
+    this.lockScroll(false);
   }
 }
