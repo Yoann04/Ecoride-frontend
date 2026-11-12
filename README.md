@@ -1,77 +1,48 @@
-# EcorideFrontend
+# EcoRide – Frontend (Angular)
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.1.
+Interface web de **EcoRide**, une plateforme de covoiturage écologique réalisée pour l'évaluation **ECF – Développeur Web et Web Mobile (Studi)**, rendue le 14 novembre 2025. Elle consomme l'API Symfony du dépôt [Ecoride-backend](https://github.com/Yoann04/Ecoride-backend).
 
-## Development server
+> **Statut** : projet de formation terminé. Il a été mis en ligne sur AlwaysData pendant la formation et **n'est plus en ligne aujourd'hui**. Il se lance en local.
 
-To start a local development server, run:
+## Aperçu
 
-```bash
-ng serve
-```
+| Recherche de trajets | Détail d'un trajet | Profil |
+|---|---|---|
+| ![Recherche](docs/screenshots/02-recherche.png) | ![Trajet](docs/screenshots/03-trajet.png) | ![Profil](docs/screenshots/04-profil.png) |
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+| Proposer un trajet | Accueil | Espace administrateur |
+|---|---|---|
+| ![Proposer](docs/screenshots/05-proposer.png) | ![Accueil](docs/screenshots/01-accueil.png) | ![Admin](docs/screenshots/06-admin.png) |
 
-## Code scaffolding
+## Pages
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- Accueil, connexion, inscription, mot de passe oublié
+- Recherche de trajets (départ, arrivée, date, tri par date ou prix), détail d'un trajet, avis du conducteur
+- Réservation, favoris, mes réservations, mes trajets de conducteur
+- Proposer un trajet, gérer ses véhicules, profil et avatar, contacter un conducteur
+- Administration : tableau de bord, utilisateurs, trajets, avis. ⚠️ Les chiffres du tableau de bord sont des **valeurs d'exemple**.
 
-```bash
-ng generate component component-name
-```
+Routes protégées par guards (`authGuard`, `guestGuard`, `adminGuard`), chargement différé des pages (lazy loading), intercepteur HTTP pour le jeton JWT.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Stack
 
-```bash
-ng generate --help
-```
+Angular 20, TypeScript 5.9, SCSS responsive, composants standalone, API REST Symfony 7.1 / JWT / MySQL (autre dépôt).
 
-## Building
+## Lancer en local
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+1. Démarrer l'API (voir le README de [Ecoride-backend](https://github.com/Yoann04/Ecoride-backend)) sur le port 8000.
+2. Puis :
 
 ```bash
-ng test
+git clone https://github.com/Yoann04/Ecoride-frontend.git
+cd Ecoride-frontend
+npm install
+npx ng serve        # http://localhost:4200
 ```
 
-## Running end-to-end tests
+`proxy.conf.json` redirige `/api` et `/uploads` vers `http://localhost:8000`. Pour un autre port, modifier ce fichier.
 
-For end-to-end (e2e) testing, run:
+## Limites connues
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
-
-## Démarrer en local
-
-### Backend (Symfony)
-
-```bash
-cd ecoride-backend
-cp .env.example .env.local
-composer install
-# Si les clés JWT n'existent pas déjà :
-# php bin/console lexik:jwt:generate-keypair
-
-symfony console doctrine:database:create --if-not-exists
-symfony console doctrine:migrations:migrate -n
-
-# Lancer sur 8001 (proxy Angular)
-symfony serve --port=8001
-```
+- Tableau de bord admin non relié à de vraies statistiques
+- Tests unitaires minimaux
